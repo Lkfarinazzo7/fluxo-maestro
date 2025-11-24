@@ -1,4 +1,4 @@
-import { Venda, Produto, Cliente, Conta } from '@/types';
+import { Contrato, Entrada, Saida } from '@/types';
 
 // Helper para gerar datas
 const getDate = (daysAgo: number) => {
@@ -7,459 +7,400 @@ const getDate = (daysAgo: number) => {
   return date.toISOString().split('T')[0];
 };
 
-// Clientes Mock
-export const mockClientes: Cliente[] = [
+const getFutureDate = (daysAhead: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + daysAhead);
+  return date.toISOString().split('T')[0];
+};
+
+// Contratos Mock
+export const mockContratos: Contrato[] = [
   {
-    id: '1',
-    tipo: 'PJ',
+    id: 'CONT-001',
     nome: 'Tech Solutions Ltda',
-    cpfCnpj: '12.345.678/0001-90',
-    email: 'contato@techsolutions.com',
-    telefone: '(11) 3456-7890',
-    endereco: {
-      cep: '01310-100',
-      rua: 'Av. Paulista',
-      numero: '1000',
-      complemento: 'Sala 501',
-      bairro: 'Bela Vista',
-      cidade: 'São Paulo',
-      estado: 'SP'
-    },
-    limiteCredito: 50000,
-    totalComprado: 125430.50,
-    ultimaCompra: getDate(5),
-    status: 'ativo'
+    operadora: 'Unimed',
+    categoria: 'PME',
+    quantidadeVidas: 45,
+    valorMensalidade: 850.00,
+    percentualComissao: 280,
+    bonificacaoPorVida: 120.00,
+    vidasParaBonificacao: 45,
+    previsaoRecebimentoBancaria: getFutureDate(5),
+    previsaoRecebimentoBonificacao: getFutureDate(10),
+    status: 'ativo',
+    observacoes: 'Cliente corporativo de alto valor',
+    dataCriacao: getDate(90)
   },
   {
-    id: '2',
-    tipo: 'PF',
-    nome: 'João Silva Santos',
-    cpfCnpj: '123.456.789-00',
-    email: 'joao.silva@email.com',
-    telefone: '(11) 98765-4321',
-    endereco: {
-      cep: '04567-000',
-      rua: 'Rua das Flores',
-      numero: '234',
-      bairro: 'Jardim Paulista',
-      cidade: 'São Paulo',
-      estado: 'SP'
-    },
-    limiteCredito: 10000,
-    totalComprado: 8750.00,
-    ultimaCompra: getDate(12),
-    status: 'ativo'
-  },
-  {
-    id: '3',
-    tipo: 'PJ',
+    id: 'CONT-002',
     nome: 'Comércio Brasil S.A.',
-    cpfCnpj: '98.765.432/0001-10',
-    email: 'comercial@comerciobrasil.com',
-    telefone: '(21) 2345-6789',
-    endereco: {
-      cep: '20040-020',
-      rua: 'Av. Rio Branco',
-      numero: '500',
-      bairro: 'Centro',
-      cidade: 'Rio de Janeiro',
-      estado: 'RJ'
-    },
-    limiteCredito: 80000,
-    totalComprado: 234560.00,
-    ultimaCompra: getDate(3),
-    status: 'ativo'
+    operadora: 'Bradesco Saúde',
+    categoria: 'Empresarial',
+    quantidadeVidas: 120,
+    valorMensalidade: 750.00,
+    percentualComissao: 250,
+    bonificacaoPorVida: 100.00,
+    vidasParaBonificacao: 120,
+    previsaoRecebimentoBancaria: getFutureDate(8),
+    previsaoRecebimentoBonificacao: getFutureDate(15),
+    status: 'ativo',
+    observacoes: 'Contrato renovado anualmente',
+    dataCriacao: getDate(180)
   },
   {
-    id: '4',
-    tipo: 'PF',
-    nome: 'Maria Oliveira Costa',
-    cpfCnpj: '987.654.321-00',
-    email: 'maria.oliveira@email.com',
-    telefone: '(11) 97654-3210',
-    endereco: {
-      cep: '05432-100',
-      rua: 'Rua Oscar Freire',
-      numero: '789',
-      bairro: 'Pinheiros',
-      cidade: 'São Paulo',
-      estado: 'SP'
-    },
-    limiteCredito: 15000,
-    totalComprado: 12450.00,
-    ultimaCompra: getDate(8),
-    status: 'ativo'
+    id: 'CONT-003',
+    nome: 'Indústria Moderna Ltda',
+    operadora: 'SulAmérica',
+    categoria: 'Empresarial',
+    quantidadeVidas: 85,
+    valorMensalidade: 920.00,
+    percentualComissao: 300,
+    bonificacaoPorVida: 150.00,
+    vidasParaBonificacao: 85,
+    previsaoRecebimentoBancaria: getFutureDate(3),
+    previsaoRecebimentoBonificacao: getFutureDate(12),
+    status: 'ativo',
+    dataCriacao: getDate(60)
   },
   {
-    id: '5',
-    tipo: 'PJ',
-    nome: 'Distribuidora Rápida Ltda',
-    cpfCnpj: '11.222.333/0001-44',
-    email: 'vendas@distrapida.com',
-    telefone: '(31) 3344-5566',
-    endereco: {
-      cep: '30130-100',
-      rua: 'Av. Afonso Pena',
-      numero: '1500',
-      bairro: 'Centro',
-      cidade: 'Belo Horizonte',
-      estado: 'MG'
-    },
-    limiteCredito: 60000,
-    totalComprado: 87650.00,
-    ultimaCompra: getDate(15),
-    status: 'ativo'
+    id: 'CONT-004',
+    nome: 'Startup Digital ME',
+    operadora: 'Hapvida',
+    categoria: 'PME',
+    quantidadeVidas: 15,
+    valorMensalidade: 680.00,
+    percentualComissao: 260,
+    bonificacaoPorVida: 80.00,
+    vidasParaBonificacao: 15,
+    previsaoRecebimentoBancaria: getFutureDate(7),
+    status: 'ativo',
+    dataCriacao: getDate(30)
+  },
+  {
+    id: 'CONT-005',
+    nome: 'Construtora Alicerce',
+    operadora: 'Amil',
+    categoria: 'Empresarial',
+    quantidadeVidas: 200,
+    valorMensalidade: 820.00,
+    percentualComissao: 290,
+    bonificacaoPorVida: 130.00,
+    vidasParaBonificacao: 200,
+    previsaoRecebimentoBancaria: getFutureDate(6),
+    previsaoRecebimentoBonificacao: getFutureDate(14),
+    status: 'ativo',
+    observacoes: 'Maior contrato ativo',
+    dataCriacao: getDate(120)
+  },
+  {
+    id: 'CONT-006',
+    nome: 'Escritório Advocacia Silva',
+    operadora: 'Porto Seguro Saúde',
+    categoria: 'PME',
+    quantidadeVidas: 8,
+    valorMensalidade: 950.00,
+    percentualComissao: 270,
+    bonificacaoPorVida: 110.00,
+    vidasParaBonificacao: 8,
+    previsaoRecebimentoBancaria: getFutureDate(4),
+    status: 'ativo',
+    dataCriacao: getDate(45)
+  },
+  {
+    id: 'CONT-007',
+    nome: 'Rede de Farmácias Saúde+',
+    operadora: 'Unimed',
+    categoria: 'Empresarial',
+    quantidadeVidas: 65,
+    valorMensalidade: 780.00,
+    percentualComissao: 285,
+    bonificacaoPorVida: 125.00,
+    vidasParaBonificacao: 65,
+    previsaoRecebimentoBancaria: getFutureDate(9),
+    previsaoRecebimentoBonificacao: getFutureDate(16),
+    status: 'ativo',
+    dataCriacao: getDate(75)
+  },
+  {
+    id: 'CONT-008',
+    nome: 'Academia FitLife',
+    operadora: 'Bradesco Saúde',
+    categoria: 'PME',
+    quantidadeVidas: 22,
+    valorMensalidade: 720.00,
+    percentualComissao: 265,
+    bonificacaoPorVida: 95.00,
+    vidasParaBonificacao: 22,
+    previsaoRecebimentoBancaria: getFutureDate(11),
+    status: 'cancelado',
+    observacoes: 'Cancelado por inadimplência',
+    dataCriacao: getDate(150)
   }
 ];
 
-// Produtos Mock
-export const mockProdutos: Produto[] = [
+// Entradas Mock
+export const mockEntradas: Entrada[] = [
   {
-    id: '1',
-    codigo: 'PROD-001',
-    nome: 'Notebook Dell Inspiron 15',
-    descricao: 'Notebook i7, 16GB RAM, 512GB SSD',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 15,
-    estoqueMinimo: 5,
-    custoCompra: 2500.00,
-    precoVenda: 3499.00,
-    status: 'ativo'
+    id: 'ENT-001',
+    tipo: 'bancaria',
+    contratoId: 'CONT-001',
+    contratoNome: 'Tech Solutions Ltda',
+    valorPrevisto: 2380.00,
+    valorRecebido: 2380.00,
+    dataPrevista: getDate(5),
+    dataRecebida: getDate(5),
+    categoria: 'Comissão Bancária',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'recebido'
   },
   {
-    id: '2',
-    codigo: 'PROD-002',
-    nome: 'Mouse Logitech MX Master 3',
-    descricao: 'Mouse sem fio ergonômico',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 45,
-    estoqueMinimo: 20,
-    custoCompra: 250.00,
-    precoVenda: 399.90,
-    status: 'ativo'
+    id: 'ENT-002',
+    tipo: 'bonificacao',
+    contratoId: 'CONT-001',
+    contratoNome: 'Tech Solutions Ltda',
+    valorPrevisto: 5400.00,
+    valorRecebido: 5400.00,
+    dataPrevista: getDate(10),
+    dataRecebida: getDate(8),
+    categoria: 'Bonificação',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'recebido'
   },
   {
-    id: '3',
-    codigo: 'PROD-003',
-    nome: 'Teclado Mecânico Keychron K2',
-    descricao: 'Teclado mecânico RGB',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 3,
-    estoqueMinimo: 10,
-    custoCompra: 350.00,
-    precoVenda: 549.90,
-    status: 'ativo'
+    id: 'ENT-003',
+    tipo: 'bancaria',
+    contratoId: 'CONT-002',
+    contratoNome: 'Comércio Brasil S.A.',
+    valorPrevisto: 1875.00,
+    valorRecebido: 1875.00,
+    dataPrevista: getDate(3),
+    dataRecebida: getDate(3),
+    categoria: 'Comissão Bancária',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'recebido'
   },
   {
-    id: '4',
-    codigo: 'PROD-004',
-    nome: 'Monitor LG 27" UltraWide',
-    descricao: 'Monitor 27 polegadas Full HD',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 8,
-    estoqueMinimo: 5,
-    custoCompra: 900.00,
-    precoVenda: 1299.00,
-    status: 'ativo'
+    id: 'ENT-004',
+    tipo: 'bonificacao',
+    contratoId: 'CONT-002',
+    contratoNome: 'Comércio Brasil S.A.',
+    valorPrevisto: 12000.00,
+    dataPrevista: getFutureDate(15),
+    categoria: 'Bonificação',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'previsto'
   },
   {
-    id: '5',
-    codigo: 'PROD-005',
-    nome: 'Cadeira Gamer ThunderX3',
-    descricao: 'Cadeira ergonômica para escritório',
-    categoria: 'Móveis',
-    estoqueAtual: 12,
-    estoqueMinimo: 8,
-    custoCompra: 600.00,
-    precoVenda: 899.00,
-    status: 'ativo'
+    id: 'ENT-005',
+    tipo: 'bancaria',
+    contratoId: 'CONT-003',
+    contratoNome: 'Indústria Moderna Ltda',
+    valorPrevisto: 2760.00,
+    dataPrevista: getFutureDate(3),
+    categoria: 'Comissão Bancária',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'previsto'
   },
   {
-    id: '6',
-    codigo: 'PROD-006',
-    nome: 'Webcam Logitech C920',
-    descricao: 'Webcam Full HD 1080p',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 25,
-    estoqueMinimo: 15,
-    custoCompra: 280.00,
-    precoVenda: 449.90,
-    status: 'ativo'
+    id: 'ENT-006',
+    tipo: 'bonificacao',
+    contratoId: 'CONT-003',
+    contratoNome: 'Indústria Moderna Ltda',
+    valorPrevisto: 12750.00,
+    dataPrevista: getFutureDate(12),
+    categoria: 'Bonificação',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'previsto'
   },
   {
-    id: '7',
-    codigo: 'PROD-007',
-    nome: 'Headset HyperX Cloud II',
-    descricao: 'Headset gamer 7.1',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 2,
-    estoqueMinimo: 10,
-    custoCompra: 300.00,
-    precoVenda: 499.90,
-    status: 'ativo'
+    id: 'ENT-007',
+    tipo: 'bancaria',
+    contratoId: 'CONT-005',
+    contratoNome: 'Construtora Alicerce',
+    valorPrevisto: 2378.00,
+    valorRecebido: 2378.00,
+    dataPrevista: getDate(2),
+    dataRecebida: getDate(2),
+    categoria: 'Comissão Bancária',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'recebido'
   },
   {
-    id: '8',
-    codigo: 'PROD-008',
-    nome: 'SSD Samsung 1TB',
-    descricao: 'SSD NVMe M.2 1TB',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 30,
-    estoqueMinimo: 20,
-    custoCompra: 350.00,
-    precoVenda: 549.00,
-    status: 'ativo'
+    id: 'ENT-008',
+    tipo: 'bonificacao',
+    contratoId: 'CONT-005',
+    contratoNome: 'Construtora Alicerce',
+    valorPrevisto: 26000.00,
+    valorRecebido: 26000.00,
+    dataPrevista: getDate(7),
+    dataRecebida: getDate(6),
+    categoria: 'Bonificação',
+    formaRecebimento: 'Transferência Bancária',
+    recorrencia: 'mensal',
+    status: 'recebido'
   },
   {
-    id: '9',
-    codigo: 'PROD-009',
-    nome: 'Impressora HP LaserJet',
-    descricao: 'Impressora multifuncional laser',
-    categoria: 'Eletrônicos',
-    estoqueAtual: 6,
-    estoqueMinimo: 5,
-    custoCompra: 800.00,
-    precoVenda: 1199.00,
-    status: 'ativo'
+    id: 'ENT-009',
+    tipo: 'avulsa',
+    valorPrevisto: 5000.00,
+    valorRecebido: 5000.00,
+    dataPrevista: getDate(15),
+    dataRecebida: getDate(15),
+    categoria: 'Consultoria',
+    formaRecebimento: 'PIX',
+    recorrencia: 'sem',
+    observacao: 'Consultoria para implantação de plano de saúde',
+    status: 'recebido'
   },
   {
-    id: '10',
-    codigo: 'PROD-010',
-    nome: 'Mesa para Escritório',
-    descricao: 'Mesa de escritório 120x60cm',
-    categoria: 'Móveis',
-    estoqueAtual: 1,
-    estoqueMinimo: 5,
-    custoCompra: 250.00,
-    precoVenda: 399.00,
-    status: 'ativo'
+    id: 'ENT-010',
+    tipo: 'avulsa',
+    valorPrevisto: 2500.00,
+    dataPrevista: getFutureDate(20),
+    categoria: 'Serviços',
+    formaRecebimento: 'Boleto',
+    recorrencia: 'sem',
+    observacao: 'Análise de sinistralidade',
+    status: 'previsto'
   }
 ];
 
-// Vendas Mock
-export const mockVendas: Venda[] = [
+// Saídas Mock
+export const mockSaidas: Saida[] = [
   {
-    id: 'VND-001',
-    clienteId: '1',
-    cliente: 'Tech Solutions Ltda',
-    data: getDate(1),
-    items: [
-      {
-        id: '1',
-        produtoId: '1',
-        produto: 'Notebook Dell Inspiron 15',
-        quantidade: 3,
-        valorUnitario: 3499.00,
-        desconto: 0,
-        subtotal: 10497.00
-      },
-      {
-        id: '2',
-        produtoId: '4',
-        produto: 'Monitor LG 27" UltraWide',
-        quantidade: 3,
-        valorUnitario: 1299.00,
-        desconto: 0,
-        subtotal: 3897.00
-      }
-    ],
-    subtotal: 14394.00,
-    desconto: 500.00,
-    impostos: 1500.00,
-    total: 15394.00,
-    status: 'pago',
-    formaPagamento: 'Boleto',
-    observacoes: 'Entrega agendada'
+    id: 'SAI-001',
+    valor: 3500.00,
+    categoria: 'Salários',
+    tipo: 'fixa',
+    fornecedor: 'Folha de Pagamento',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getDate(5),
+    dataPaga: getDate(5),
+    formaPagamento: 'Transferência Bancária',
+    observacao: 'Pagamento de equipe administrativa',
+    status: 'pago'
   },
   {
-    id: 'VND-002',
-    clienteId: '2',
-    cliente: 'João Silva Santos',
-    data: getDate(2),
-    items: [
-      {
-        id: '1',
-        produtoId: '2',
-        produto: 'Mouse Logitech MX Master 3',
-        quantidade: 1,
-        valorUnitario: 399.90,
-        desconto: 0,
-        subtotal: 399.90
-      },
-      {
-        id: '2',
-        produtoId: '3',
-        produto: 'Teclado Mecânico Keychron K2',
-        quantidade: 1,
-        valorUnitario: 549.90,
-        desconto: 0,
-        subtotal: 549.90
-      }
-    ],
-    subtotal: 949.80,
-    desconto: 50.00,
-    impostos: 100.00,
-    total: 999.80,
-    status: 'pago',
-    formaPagamento: 'PIX',
-    observacoes: ''
+    id: 'SAI-002',
+    valor: 2200.00,
+    categoria: 'Aluguel',
+    tipo: 'fixa',
+    fornecedor: 'Imobiliária Central',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getDate(10),
+    dataPaga: getDate(10),
+    formaPagamento: 'Transferência Bancária',
+    status: 'pago'
   },
   {
-    id: 'VND-003',
-    clienteId: '3',
-    cliente: 'Comércio Brasil S.A.',
-    data: getDate(3),
-    items: [
-      {
-        id: '1',
-        produtoId: '1',
-        produto: 'Notebook Dell Inspiron 15',
-        quantidade: 10,
-        valorUnitario: 3499.00,
-        desconto: 500,
-        subtotal: 34490.00
-      },
-      {
-        id: '2',
-        produtoId: '6',
-        produto: 'Webcam Logitech C920',
-        quantidade: 10,
-        valorUnitario: 449.90,
-        desconto: 0,
-        subtotal: 4499.00
-      }
-    ],
-    subtotal: 38989.00,
-    desconto: 1000.00,
-    impostos: 4200.00,
-    total: 42189.00,
-    status: 'pago',
-    formaPagamento: 'Cartão',
-    observacoes: 'Cliente corporativo'
+    id: 'SAI-003',
+    valor: 850.00,
+    categoria: 'Marketing',
+    tipo: 'variavel',
+    fornecedor: 'Google Ads',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getDate(3),
+    dataPaga: getDate(3),
+    formaPagamento: 'Cartão de Crédito',
+    observacao: 'Campanha de aquisição',
+    status: 'pago'
   },
   {
-    id: 'VND-004',
-    clienteId: '4',
-    cliente: 'Maria Oliveira Costa',
-    data: getDate(5),
-    items: [
-      {
-        id: '1',
-        produtoId: '5',
-        produto: 'Cadeira Gamer ThunderX3',
-        quantidade: 1,
-        valorUnitario: 899.00,
-        desconto: 0,
-        subtotal: 899.00
-      }
-    ],
-    subtotal: 899.00,
-    desconto: 0,
-    impostos: 100.00,
-    total: 999.00,
-    status: 'pendente',
-    formaPagamento: 'Boleto',
-    observacoes: 'Aguardando pagamento'
+    id: 'SAI-004',
+    valor: 450.00,
+    categoria: 'Energia',
+    tipo: 'fixa',
+    fornecedor: 'Companhia de Energia',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getFutureDate(5),
+    formaPagamento: 'Débito Automático',
+    status: 'previsto'
   },
   {
-    id: 'VND-005',
-    clienteId: '5',
-    cliente: 'Distribuidora Rápida Ltda',
-    data: getDate(7),
-    items: [
-      {
-        id: '1',
-        produtoId: '8',
-        produto: 'SSD Samsung 1TB',
-        quantidade: 20,
-        valorUnitario: 549.00,
-        desconto: 0,
-        subtotal: 10980.00
-      }
-    ],
-    subtotal: 10980.00,
-    desconto: 500.00,
-    impostos: 1200.00,
-    total: 11680.00,
-    status: 'pago',
-    formaPagamento: 'Transferência',
-    observacoes: ''
+    id: 'SAI-005',
+    valor: 320.00,
+    categoria: 'Internet',
+    tipo: 'fixa',
+    fornecedor: 'Provedor Fibra',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getFutureDate(8),
+    formaPagamento: 'Débito Automático',
+    status: 'previsto'
   },
   {
-    id: 'VND-006',
-    clienteId: '1',
-    cliente: 'Tech Solutions Ltda',
-    data: getDate(10),
-    items: [
-      {
-        id: '1',
-        produtoId: '9',
-        produto: 'Impressora HP LaserJet',
-        quantidade: 2,
-        valorUnitario: 1199.00,
-        desconto: 0,
-        subtotal: 2398.00
-      }
-    ],
-    subtotal: 2398.00,
-    desconto: 0,
-    impostos: 280.00,
-    total: 2678.00,
-    status: 'pago',
-    formaPagamento: 'PIX',
-    observacoes: ''
-  }
-];
-
-// Contas Mock
-export const mockContas: Conta[] = [
-  {
-    id: 'CR-001',
-    tipo: 'receber',
-    descricao: 'Venda VND-004',
-    valor: 999.00,
-    vencimento: getDate(-5),
-    status: 'aberto',
-    clienteId: '4',
-    cliente: 'Maria Oliveira Costa',
-    categoria: 'Vendas'
+    id: 'SAI-006',
+    valor: 1200.00,
+    categoria: 'Contador',
+    tipo: 'fixa',
+    fornecedor: 'Contabilidade Expert',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getDate(15),
+    dataPaga: getDate(15),
+    formaPagamento: 'Transferência Bancária',
+    status: 'pago'
   },
   {
-    id: 'CR-002',
-    tipo: 'receber',
-    descricao: 'Venda parcelada',
-    valor: 5000.00,
-    vencimento: getDate(-2),
-    status: 'vencido',
-    clienteId: '3',
-    cliente: 'Comércio Brasil S.A.',
-    categoria: 'Vendas'
+    id: 'SAI-007',
+    valor: 680.00,
+    categoria: 'Software',
+    tipo: 'fixa',
+    fornecedor: 'Assinaturas SaaS',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getDate(7),
+    dataPaga: getDate(7),
+    formaPagamento: 'Cartão de Crédito',
+    observacao: 'CRM + Gestão + Comunicação',
+    status: 'pago'
   },
   {
-    id: 'CP-001',
-    tipo: 'pagar',
-    descricao: 'Fornecedor ABC - Estoque',
-    valor: 15000.00,
-    vencimento: getDate(-10),
-    status: 'pago',
-    categoria: 'Compras'
-  },
-  {
-    id: 'CP-002',
-    tipo: 'pagar',
-    descricao: 'Aluguel do galpão',
-    valor: 8000.00,
-    vencimento: getDate(-3),
-    status: 'aberto',
-    categoria: 'Despesas Fixas'
-  },
-  {
-    id: 'CP-003',
-    tipo: 'pagar',
-    descricao: 'Energia elétrica',
+    id: 'SAI-008',
     valor: 2500.00,
-    vencimento: getDate(-1),
-    status: 'vencido',
-    categoria: 'Despesas Fixas'
+    categoria: 'Impostos',
+    tipo: 'fixa',
+    fornecedor: 'Receita Federal',
+    recorrente: true,
+    frequencia: 'mensal',
+    dataPrevista: getFutureDate(10),
+    formaPagamento: 'Débito Automático',
+    status: 'previsto'
+  },
+  {
+    id: 'SAI-009',
+    valor: 1500.00,
+    categoria: 'Treinamento',
+    tipo: 'variavel',
+    fornecedor: 'Instituto de Formação',
+    recorrente: false,
+    dataPrevista: getDate(20),
+    dataPaga: getDate(20),
+    formaPagamento: 'Boleto',
+    observacao: 'Curso de especialização em planos de saúde',
+    status: 'pago'
+  },
+  {
+    id: 'SAI-010',
+    valor: 3800.00,
+    categoria: 'Manutenção',
+    tipo: 'variavel',
+    fornecedor: 'TI Solutions',
+    recorrente: false,
+    dataPrevista: getFutureDate(15),
+    formaPagamento: 'Transferência Bancária',
+    observacao: 'Upgrade de infraestrutura',
+    status: 'previsto'
   }
 ];
