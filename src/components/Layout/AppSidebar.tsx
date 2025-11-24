@@ -1,10 +1,8 @@
 import { 
   LayoutDashboard, 
-  ShoppingCart, 
-  Package, 
-  Users, 
+  FileText, 
   DollarSign, 
-  FileText,
+  BarChart3,
   Settings 
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -22,11 +20,9 @@ import {
 
 const menuItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-  { title: 'Vendas', url: '/vendas', icon: ShoppingCart },
-  { title: 'Produtos', url: '/produtos', icon: Package },
-  { title: 'Clientes', url: '/clientes', icon: Users },
+  { title: 'Contratos', url: '/contratos', icon: FileText },
   { title: 'Financeiro', url: '/financeiro', icon: DollarSign },
-  { title: 'Relatórios', url: '/relatorios', icon: FileText },
+  { title: 'Relatórios', url: '/relatorios', icon: BarChart3 },
   { title: 'Configurações', url: '/configuracoes', icon: Settings },
 ];
 
@@ -34,7 +30,8 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border p-6">
-        <h1 className="text-xl font-bold text-sidebar-foreground">ERP System</h1>
+        <h1 className="text-xl font-bold text-sidebar-foreground">ERP Odisseia</h1>
+        <p className="text-xs text-muted-foreground mt-1">Gestão Financeira + Contratos</p>
       </SidebarHeader>
       
       <SidebarContent>

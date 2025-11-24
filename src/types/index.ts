@@ -1,90 +1,60 @@
-export interface Venda {
+export interface Contrato {
   id: string;
-  clienteId: string;
-  cliente: string;
-  data: string;
-  items: ItemVenda[];
-  subtotal: number;
-  desconto: number;
-  impostos: number;
-  total: number;
-  status: 'pendente' | 'pago' | 'cancelado';
-  formaPagamento: string;
+  nome: string;
+  operadora: string;
+  categoria: string;
+  quantidadeVidas: number;
+  valorMensalidade: number;
+  percentualComissao: number; // Ex: 280 = 280% = 2,8x
+  bonificacaoPorVida: number;
+  vidasParaBonificacao: number;
+  previsaoRecebimentoBancaria: string;
+  previsaoRecebimentoBonificacao?: string;
+  status: 'ativo' | 'cancelado';
   observacoes?: string;
+  dataCriacao: string;
 }
 
-export interface ItemVenda {
+export interface Entrada {
   id: string;
-  produtoId: string;
-  produto: string;
-  quantidade: number;
-  valorUnitario: number;
-  desconto: number;
-  subtotal: number;
-}
-
-export interface Produto {
-  id: string;
-  codigo: string;
-  nome: string;
-  descricao: string;
+  tipo: 'bancaria' | 'bonificacao' | 'avulsa';
+  contratoId?: string;
+  contratoNome?: string;
+  valorPrevisto: number;
+  valorRecebido?: number;
+  dataPrevista: string;
+  dataRecebida?: string;
   categoria: string;
-  estoqueAtual: number;
-  estoqueMinimo: number;
-  custoCompra: number;
-  precoVenda: number;
-  imagemUrl?: string;
-  status: 'ativo' | 'inativo';
+  formaRecebimento: string;
+  recorrencia: 'sem' | 'mensal' | '2meses' | '3meses' | '6meses' | '12meses' | 'vitalicio';
+  observacao?: string;
+  status: 'previsto' | 'recebido';
 }
 
-export interface Cliente {
+export interface Saida {
   id: string;
-  tipo: 'PF' | 'PJ';
-  nome: string;
-  cpfCnpj: string;
-  email: string;
-  telefone: string;
-  endereco: Endereco;
-  limiteCredito: number;
-  totalComprado: number;
-  ultimaCompra?: string;
-  status: 'ativo' | 'bloqueado';
-}
-
-export interface Endereco {
-  cep: string;
-  rua: string;
-  numero: string;
-  complemento?: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
-}
-
-export interface Conta {
-  id: string;
-  tipo: 'receber' | 'pagar';
-  descricao: string;
   valor: number;
-  vencimento: string;
-  status: 'aberto' | 'pago' | 'vencido';
-  clienteId?: string;
-  cliente?: string;
   categoria: string;
+  tipo: 'fixa' | 'variavel';
+  fornecedor: string;
+  recorrente: boolean;
+  frequencia?: 'mensal' | '2meses' | '3meses' | '6meses' | '12meses' | 'vitalicio';
+  dataPrevista: string;
+  dataPaga?: string;
+  formaPagamento: string;
+  comprovante?: string;
+  observacao?: string;
+  status: 'previsto' | 'pago';
 }
 
 export interface DashboardMetrics {
-  vendasMes: {
-    total: number;
-    variacao: number;
-  };
-  financeiro: {
-    receitas: number;
-    despesas: number;
-    lucro: number;
-  };
-  estoqueCritico: Produto[];
-  ultimasVendas: Venda[];
-  contasReceber: number;
-  contasPagar: number;
+  receitaMes: number;
+  receitasPrevistas: number;
+  despesasMes: number;
+  resultadoLiquido: number;
+  contratosAtivos: number;
+  ticketMedioContratos: number;
+  ticketMedioRecebido: number;
+  bonificacaoTotal: number;
+  bonificacaoPendente: number;
 }

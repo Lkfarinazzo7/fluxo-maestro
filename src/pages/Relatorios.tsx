@@ -5,43 +5,43 @@ import { FileText, Download } from 'lucide-react';
 const relatorios = [
   { 
     id: 1, 
-    nome: 'Vendas por Período', 
-    descricao: 'Relatório detalhado de vendas em um período específico' 
+    nome: 'Fluxo de Caixa', 
+    descricao: 'Análise detalhada de entradas e saídas financeiras' 
   },
   { 
     id: 2, 
-    nome: 'Produtos Mais Vendidos', 
-    descricao: 'Ranking dos produtos com maior volume de vendas' 
-  },
-  { 
-    id: 3, 
-    nome: 'Clientes Top', 
-    descricao: 'Clientes que mais compraram no período' 
-  },
-  { 
-    id: 4, 
-    nome: 'Margem de Lucro', 
-    descricao: 'Análise de margem de lucro por produto' 
-  },
-  { 
-    id: 5, 
-    nome: 'Análise de Estoque', 
-    descricao: 'Relatório de movimentação e situação do estoque' 
-  },
-  { 
-    id: 6, 
     nome: 'DRE Simplificado', 
     descricao: 'Demonstração do Resultado do Exercício' 
   },
   { 
+    id: 3, 
+    nome: 'Receitas Previstas vs Recebidas', 
+    descricao: 'Comparativo entre valores previstos e realizados' 
+  },
+  { 
+    id: 4, 
+    nome: 'Despesas por Categoria', 
+    descricao: 'Análise de gastos por categoria de despesa' 
+  },
+  { 
+    id: 5, 
+    nome: 'Contratos por Operadora', 
+    descricao: 'Distribuição e performance por operadora' 
+  },
+  { 
+    id: 6, 
+    nome: 'Ticket Médio dos Contratos', 
+    descricao: 'Análise de ticket médio e variações' 
+  },
+  { 
     id: 7, 
-    nome: 'Fluxo de Caixa', 
-    descricao: 'Análise de entradas e saídas financeiras' 
+    nome: 'Bonificações', 
+    descricao: 'Relatório de bonificações pagas e pendentes' 
   },
   { 
     id: 8, 
-    nome: 'Análise de Vendas', 
-    descricao: 'Análise completa do desempenho de vendas' 
+    nome: 'Previsão Anual', 
+    descricao: 'Projeção de receitas e despesas para o ano' 
   },
 ];
 

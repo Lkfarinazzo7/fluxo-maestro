@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Save } from 'lucide-react';
 
 export default function Configuracoes() {
   return (
@@ -15,89 +16,108 @@ export default function Configuracoes() {
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Dados da Empresa</CardTitle>
+            <CardTitle>Dados da Corretora</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="razaoSocial">Razão Social</Label>
-                <Input id="razaoSocial" placeholder="Nome da empresa" />
+                <Label htmlFor="razao-social">Razão Social</Label>
+                <Input id="razao-social" placeholder="Nome da empresa" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cnpj">CNPJ</Label>
                 <Input id="cnpj" placeholder="00.000.000/0000-00" />
               </div>
             </div>
+            
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="contato@empresa.com" />
+                <Label htmlFor="email">E-mail</Label>
+                <Input id="email" type="email" placeholder="contato@corretora.com" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="telefone">Telefone</Label>
                 <Input id="telefone" placeholder="(00) 0000-0000" />
               </div>
             </div>
-            <Button>Salvar Alterações</Button>
+
+            <Button>
+              <Save className="mr-2 h-4 w-4" />
+              Salvar Alterações
+            </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Configurações do Sistema</CardTitle>
+            <CardTitle>Operadoras</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="moeda">Moeda Padrão</Label>
-              <Input id="moeda" value="BRL (R$)" disabled />
+              <Label>Operadoras Cadastradas</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Hapvida', 'Porto Seguro Saúde'].map((op) => (
+                  <div key={op} className="px-3 py-1 bg-muted rounded-md text-sm">
+                    {op}
+                  </div>
+                ))}
+              </div>
             </div>
-            <Separator />
-            <div className="space-y-2">
-              <Label htmlFor="timezone">Fuso Horário</Label>
-              <Input id="timezone" value="America/Sao_Paulo" disabled />
-            </div>
-            <Separator />
-            <div className="space-y-2">
-              <Label htmlFor="formato-data">Formato de Data</Label>
-              <Input id="formato-data" value="DD/MM/YYYY" disabled />
-            </div>
+            <Button variant="outline">Gerenciar Operadoras</Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Notificações</CardTitle>
+            <CardTitle>Categorias</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
               <div>
-                <p className="font-medium text-foreground">Alertas de Estoque Baixo</p>
-                <p className="text-sm text-muted-foreground">
-                  Receba notificações quando produtos estiverem abaixo do estoque mínimo
-                </p>
+                <Label className="text-sm font-medium">Categorias de Receitas</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {['Comissão Bancária', 'Bonificação', 'Consultoria', 'Serviços'].map((cat) => (
+                    <div key={cat} className="px-3 py-1 bg-success/10 text-success rounded-md text-sm">
+                      {cat}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <Button variant="outline">Ativado</Button>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
+              
+              <Separator />
+              
               <div>
-                <p className="font-medium text-foreground">Contas a Vencer</p>
-                <p className="text-sm text-muted-foreground">
-                  Alertas sobre contas próximas ao vencimento
-                </p>
+                <Label className="text-sm font-medium">Categorias de Despesas</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {['Salários', 'Aluguel', 'Marketing', 'Energia', 'Internet', 'Contador', 'Software', 'Impostos'].map((cat) => (
+                    <div key={cat} className="px-3 py-1 bg-destructive/10 text-destructive rounded-md text-sm">
+                      {cat}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <Button variant="outline">Ativado</Button>
             </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Novas Vendas</p>
-                <p className="text-sm text-muted-foreground">
-                  Notificações de novas vendas realizadas
-                </p>
+            
+            <Button variant="outline">Gerenciar Categorias</Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Formas de Pagamento</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Formas Disponíveis</Label>
+              <div className="flex flex-wrap gap-2">
+                {['PIX', 'Transferência Bancária', 'Boleto', 'Cartão de Crédito', 'Débito Automático'].map((forma) => (
+                  <div key={forma} className="px-3 py-1 bg-muted rounded-md text-sm">
+                    {forma}
+                  </div>
+                ))}
               </div>
-              <Button variant="outline">Ativado</Button>
             </div>
+            <Button variant="outline">Gerenciar Formas de Pagamento</Button>
           </CardContent>
         </Card>
       </div>
