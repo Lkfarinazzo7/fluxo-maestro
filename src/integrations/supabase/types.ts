@@ -28,7 +28,6 @@ export type Database = {
           previsao_recebimento_bancaria: string | null
           previsao_recebimento_bonificacao: string | null
           quantidade_vidas: number
-          status: string
           tipo_contrato: string
           updated_at: string
           valor_mensalidade: number
@@ -46,7 +45,6 @@ export type Database = {
           previsao_recebimento_bancaria?: string | null
           previsao_recebimento_bonificacao?: string | null
           quantidade_vidas?: number
-          status?: string
           tipo_contrato: string
           updated_at?: string
           valor_mensalidade: number
@@ -64,7 +62,6 @@ export type Database = {
           previsao_recebimento_bancaria?: string | null
           previsao_recebimento_bonificacao?: string | null
           quantidade_vidas?: number
-          status?: string
           tipo_contrato?: string
           updated_at?: string
           valor_mensalidade?: number
@@ -78,9 +75,9 @@ export type Database = {
           created_at: string
           data_paga: string | null
           data_prevista: string
+          duracao_meses: number | null
           forma_pagamento: string
           fornecedor: string
-          frequencia: string | null
           id: string
           nome: string
           observacao: string | null
@@ -96,9 +93,9 @@ export type Database = {
           created_at?: string
           data_paga?: string | null
           data_prevista: string
+          duracao_meses?: number | null
           forma_pagamento: string
           fornecedor: string
-          frequencia?: string | null
           id?: string
           nome: string
           observacao?: string | null
@@ -114,9 +111,9 @@ export type Database = {
           created_at?: string
           data_paga?: string | null
           data_prevista?: string
+          duracao_meses?: number | null
           forma_pagamento?: string
           fornecedor?: string
-          frequencia?: string | null
           id?: string
           nome?: string
           observacao?: string | null
