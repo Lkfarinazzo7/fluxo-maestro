@@ -40,9 +40,6 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
     setValue,
   } = useForm<ContratoFormValues>({
     resolver: zodResolver(contratoSchema),
-    defaultValues: {
-      status: 'ativo',
-    },
   });
 
   const onSubmit = (data: ContratoFormValues) => {
@@ -85,7 +82,7 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
               <Label htmlFor="operadora">Operadora *</Label>
               <Input id="operadora" {...register('operadora')} />
               {errors.operadora && (
-                <p className="text-sm text-destructive">{errors.operadora.message}</p>
+                <p className="text-sm text-destructive">{String(errors.operadora.message)}</p>
               )}
             </div>
 

@@ -11,6 +11,7 @@ import { ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, ComposedChart } from 'recharts';
+import { Label } from '@/components/ui/label';
 
 export default function FluxoCaixa() {
   const navigate = useNavigate();
@@ -18,12 +19,25 @@ export default function FluxoCaixa() {
   const [customStart, setCustomStart] = useState<Date>();
   const [customEnd, setCustomEnd] = useState<Date>();
 
+  // Períodos de comparação
+  const [comparativoPeriodType, setComparativoPeriodType] = useState<PeriodType>('mes');
+  const [comparativoCustomStart, setComparativoCustomStart] = useState<Date>();
+  const [comparativoCustomEnd, setComparativoCustomEnd] = useState<Date>();
+
   const dateRange: DateRange = useMemo(() => {
     return getPeriodRange(periodType, customStart, customEnd);
   }, [periodType, customStart, customEnd]);
 
+  const comparativoDateRange: DateRange = useMemo(() => {
+    return getPeriodRange(comparativoPeriodType, comparativoCustomStart, comparativoCustomEnd);
+  }, [comparativoPeriodType, comparativoCustomStart, comparativoCustomEnd]);
+
   const { entradasRecebidas, entradasPrevistas } = useEntries(dateRange);
   const { saidasPagas, saidasPrevistas } = useExpenses(dateRange);
+
+  // Dados do período de comparação
+  const { entradasRecebidas: entradasComparativo } = useEntries(comparativoDateRange);
+  const { saidasPagas: saidasComparativo } = useExpenses(comparativoDateRange);
 
   const receitaRecebida = entradasRecebidas.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
   const receitaPrevista = entradasPrevistas.reduce((sum, e) => sum + e.valorPrevisto, 0);
@@ -32,10 +46,14 @@ export default function FluxoCaixa() {
   const saldoRealizado = receitaRecebida - despesaPaga;
   const saldoProjetado = (receitaRecebida + receitaPrevista) - (despesaPaga + despesaPrevista);
 
-  // Preparar dados para o gráfico
+  const receitaComparativo = entradasComparativo.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
+  const despesaComparativo = saidasComparativo.reduce((sum, s) => sum + s.valor, 0);
+  const saldoComparativo = receitaComparativo - despesaComparativo;
+
+  // Preparar dados para o gráfico comparativo
   const chartData = [
-    { name: 'Realizado', receitas: receitaRecebida, despesas: despesaPaga, saldo: saldoRealizado },
-    { name: 'Projetado', receitas: receitaPrevista, despesas: despesaPrevista, saldo: saldoProjetado - saldoRealizado }
+    { name: 'Período Atual', receitas: receitaRecebida, despesas: despesaPaga, saldo: saldoRealizado },
+    { name: 'Período Comparativo', receitas: receitaComparativo, despesas: despesaComparativo, saldo: saldoComparativo },
   ];
 
   return (
@@ -101,7 +119,22 @@ export default function FluxoCaixa() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Comparativo: Realizado vs Projetado</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Comparativo de Períodos</CardTitle>
+            <div className="flex gap-4 items-center">
+              <div>
+                <Label className="text-xs text-muted-foreground">Período de Comparação:</Label>
+                <PeriodFilter 
+                  value={comparativoPeriodType} 
+                  customStart={comparativoCustomStart}
+                  customEnd={comparativoCustomEnd}
+                  onValueChange={setComparativoPeriodType}
+                  onCustomStartChange={setComparativoCustomStart}
+                  onCustomEndChange={setComparativoCustomEnd}
+                />
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>

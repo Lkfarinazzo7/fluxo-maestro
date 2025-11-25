@@ -99,7 +99,7 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
               <Label htmlFor="categoria">Categoria *</Label>
               <Input id="categoria" {...register('categoria')} placeholder="Ex: Aluguel, Marketing" />
               {errors.categoria && (
-                <p className="text-sm text-destructive">{errors.categoria.message}</p>
+                <p className="text-sm text-destructive">{String(errors.categoria.message)}</p>
               )}
             </div>
 
@@ -179,20 +179,20 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
 
             {recorrente && (
               <div className="space-y-2">
-                <Label htmlFor="frequencia">Frequência</Label>
-                <Select onValueChange={(value) => setValue('frequencia', value as any)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mensal">Mensal</SelectItem>
-                    <SelectItem value="2meses">A cada 2 meses</SelectItem>
-                    <SelectItem value="3meses">A cada 3 meses</SelectItem>
-                    <SelectItem value="6meses">A cada 6 meses</SelectItem>
-                    <SelectItem value="12meses">Anual</SelectItem>
-                    <SelectItem value="vitalicio">Vitalício</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="duracao_meses">Duração (meses)</Label>
+                <Input 
+                  id="duracao_meses" 
+                  type="number" 
+                  min="1"
+                  {...register('duracao_meses')}
+                  placeholder="Ex: 3 para 3 meses"
+                />
+                {errors.duracao_meses && (
+                  <p className="text-sm text-destructive">{errors.duracao_meses.message}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Informe por quantos meses essa despesa se repetirá
+                </p>
               </div>
             )}
           </div>

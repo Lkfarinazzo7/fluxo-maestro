@@ -1,8 +1,34 @@
 import { z } from 'zod';
 
+// Operadoras pré-definidas
+export const OPERADORAS = [
+  'Unimed FERJ',
+  'Bradesco',
+  'SulAmérica',
+  'Amil',
+  'Porto Seguro',
+  'MedSênior',
+  'Prevent Senior',
+  'Leve Saúde',
+] as const;
+
+// Categorias de despesas pré-definidas
+export const CATEGORIAS_DESPESAS = [
+  'Aluguel',
+  'Salários',
+  'Marketing',
+  'Tecnologia',
+  'Transporte',
+  'Alimentação',
+  'Impostos',
+  'Outros',
+] as const;
+
 export const contratoSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
-  operadora: z.string().min(2, 'Operadora é obrigatória'),
+  operadora: z.enum(OPERADORAS as any, {
+    required_error: 'Operadora é obrigatória',
+  }),
   categoria: z.string().min(2, 'Categoria é obrigatória'),
   tipo_contrato: z.enum(['PJ', 'PF'], {
     required_error: 'Tipo de contrato é obrigatório',
@@ -12,10 +38,9 @@ export const contratoSchema = z.object({
   bonificacao_por_vida: z.coerce.number().min(0, 'Bonificação deve ser maior ou igual a zero'),
   quantidade_vidas: z.coerce.number().int().min(1, 'Quantidade de vidas deve ser maior que zero'),
   data_implantacao: z.string().min(1, 'Data de implantação é obrigatória'),
-  previsao_recebimento_bancaria: z.string().optional(),
+  previsao_recebimento_bancaria: z.string().min(1, 'Data de previsão de recebimento é obrigatória'),
   previsao_recebimento_bonificacao: z.string().optional(),
   observacoes: z.string().optional(),
-  status: z.enum(['ativo', 'cancelado']).default('ativo'),
 });
 
 export const receitaSchema = z.object({
@@ -38,13 +63,15 @@ export const receitaSchema = z.object({
 export const despesaSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   valor: z.coerce.number().min(0, 'Valor deve ser maior que zero'),
-  categoria: z.string().min(2, 'Categoria é obrigatória'),
+  categoria: z.enum(CATEGORIAS_DESPESAS as any, {
+    required_error: 'Categoria é obrigatória',
+  }),
   tipo: z.enum(['fixa', 'variavel'], {
     required_error: 'Tipo é obrigatório',
   }),
   fornecedor: z.string().min(2, 'Fornecedor é obrigatório'),
   recorrente: z.boolean().default(false),
-  frequencia: z.enum(['mensal', '2meses', '3meses', '6meses', '12meses', 'vitalicio']).optional(),
+  duracao_meses: z.coerce.number().int().min(1).optional(),
   data_prevista: z.string().min(1, 'Data prevista é obrigatória'),
   data_paga: z.string().optional(),
   forma_pagamento: z.string().min(2, 'Forma de pagamento é obrigatória'),

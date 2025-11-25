@@ -2,11 +2,14 @@ import { Bell, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import logo from '@/assets/odisseia-logo.png';
 
 export function AppHeader() {
   return (
     <header className="h-16 border-b border-border bg-card flex items-center px-6 gap-4">
       <SidebarTrigger />
+      
+      <img src={logo} alt="Odisseia Seguros" className="h-10 w-auto" />
       
       <div className="flex-1 max-w-xl">
         <div className="relative">

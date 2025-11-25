@@ -33,12 +33,13 @@ export interface Entrada {
 
 export interface Saida {
   id: string;
+  nome: string;
   valor: number;
   categoria: string;
   tipo: 'fixa' | 'variavel';
   fornecedor: string;
   recorrente: boolean;
-  frequencia?: 'mensal' | '2meses' | '3meses' | '6meses' | '12meses' | 'vitalicio';
+  duracao_meses?: number;
   dataPrevista: string;
   dataPaga?: string;
   formaPagamento: string;
