@@ -276,12 +276,13 @@ export const mockEntradas: Entrada[] = [
 export const mockSaidas: Saida[] = [
   {
     id: 'SAI-001',
+    nome: 'Salários',
     valor: 3500.00,
     categoria: 'Salários',
     tipo: 'fixa',
     fornecedor: 'Folha de Pagamento',
     recorrente: true,
-    frequencia: 'mensal',
+    duracao_meses: 12,
     dataPrevista: getDate(5),
     dataPaga: getDate(5),
     formaPagamento: 'Transferência Bancária',

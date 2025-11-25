@@ -9,7 +9,7 @@ export interface DespesaFormData {
   tipo: 'fixa' | 'variavel';
   fornecedor: string;
   recorrente: boolean;
-  frequencia?: 'mensal' | '2meses' | '3meses' | '6meses' | '12meses' | 'vitalicio';
+  duracao_meses?: number;
   data_prevista: string;
   data_paga?: string;
   forma_pagamento: string;

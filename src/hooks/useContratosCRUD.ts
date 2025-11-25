@@ -12,10 +12,9 @@ export interface ContratoFormData {
   bonificacao_por_vida: number;
   quantidade_vidas: number;
   data_implantacao: string;
-  previsao_recebimento_bancaria?: string;
+  previsao_recebimento_bancaria: string;
   previsao_recebimento_bonificacao?: string;
   observacoes?: string;
-  status?: 'ativo' | 'cancelado';
 }
 
 export function useContratosCRUD() {
@@ -36,6 +35,7 @@ export function useContratosCRUD() {
 
   const createMutation = useMutation({
     mutationFn: async (data: ContratoFormData) => {
+      // Criar contrato
       const { data: contrato, error } = await supabase
         .from('contratos')
         .insert([data])
@@ -43,13 +43,61 @@ export function useContratosCRUD() {
         .single();
       
       if (error) throw error;
+
+      // Calcular valor da bancária
+      const valorBancaria = (data.valor_mensalidade * data.quantidade_vidas * data.percentual_comissao) / 100;
+
+      // Criar receita de bancária automaticamente
+      const { error: receitaBancariaError } = await supabase
+        .from('receitas')
+        .insert([{
+          tipo: 'bancaria',
+          contrato_id: contrato.id,
+          contrato_nome: data.nome,
+          valor_previsto: valorBancaria,
+          data_prevista: data.previsao_recebimento_bancaria,
+          categoria: 'Comissão Bancária',
+          forma_recebimento: 'Transferência',
+          recorrencia: 'mensal',
+          status: 'previsto',
+        }]);
+
+      if (receitaBancariaError) {
+        console.error('Erro ao criar receita bancária:', receitaBancariaError);
+      }
+
+      // Se houver bonificação, criar receita de bonificação
+      if (data.bonificacao_por_vida > 0) {
+        const valorBonificacao = data.bonificacao_por_vida * data.quantidade_vidas;
+        const dataBonificacao = data.previsao_recebimento_bonificacao || data.previsao_recebimento_bancaria;
+
+        const { error: receitaBonificacaoError } = await supabase
+          .from('receitas')
+          .insert([{
+            tipo: 'bonificacao',
+            contrato_id: contrato.id,
+            contrato_nome: data.nome,
+            valor_previsto: valorBonificacao,
+            data_prevista: dataBonificacao,
+            categoria: 'Bonificação por Vida',
+            forma_recebimento: 'Transferência',
+            recorrencia: 'mensal',
+            status: 'previsto',
+          }]);
+
+        if (receitaBonificacaoError) {
+          console.error('Erro ao criar receita de bonificação:', receitaBonificacaoError);
+        }
+      }
+
       return contrato;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contratos'] });
+      queryClient.invalidateQueries({ queryKey: ['receitas'] });
       toast({
         title: 'Sucesso!',
-        description: 'Contrato criado com sucesso.',
+        description: 'Contrato e receitas criados com sucesso.',
       });
     },
     onError: (error: any) => {

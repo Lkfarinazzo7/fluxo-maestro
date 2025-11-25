@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/Dashboard/MetricCard';
 import { PeriodFilter } from '@/components/Dashboard/PeriodFilter';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useEntries } from '@/hooks/useEntries';
+import { useExpenses } from '@/hooks/useExpenses';
 import { getPeriodRange, PeriodType, DateRange } from '@/lib/dateFilters';
 import { format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -36,6 +37,7 @@ export default function Dashboard() {
 
   const { metrics, contratosPorOperadora } = useDashboard(dateRange);
   const { entradasRecebidas, entradasPrevistas } = useEntries(dateRange);
+  const { saidasPrevistas } = useExpenses(dateRange);
 
   // Dados para gráfico de fluxo de caixa dinâmico
   const fluxoCaixaData = useMemo(() => {
@@ -256,32 +258,58 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Próximos recebimentos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Próximos Recebimentos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {entradasPrevistas.slice(0, 8).map((entrada) => (
-              <div key={entrada.id} className="flex items-center justify-between border-b pb-3 last:border-0">
-                <div>
-                  <p className="font-medium text-foreground">{entrada.contratoNome || 'Receita Avulsa'}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {entrada.tipo === 'bancaria' ? 'Comissão Bancária' : entrada.tipo === 'bonificacao' ? 'Bonificação' : entrada.categoria}
-                  </p>
+      {/* Próximos recebimentos e despesas */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Próximos Recebimentos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {entradasPrevistas.slice(0, 8).map((entrada) => (
+                <div key={entrada.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                  <div>
+                    <p className="font-medium text-foreground">{entrada.contratoNome || 'Receita Avulsa'}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {entrada.tipo === 'bancaria' ? 'Comissão Bancária' : entrada.tipo === 'bonificacao' ? 'Bonificação' : entrada.categoria}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-success">{formatCurrency(entrada.valorPrevisto)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(entrada.dataPrevista).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-foreground">{formatCurrency(entrada.valorPrevisto)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(entrada.dataPrevista).toLocaleDateString('pt-BR')}
-                  </p>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Próximas Despesas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {saidasPrevistas.slice(0, 8).map((saida) => (
+                <div key={saida.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                  <div>
+                    <p className="font-medium text-foreground">{saida.nome}</p>
+                    <p className="text-sm text-muted-foreground">{saida.categoria}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-destructive">{formatCurrency(saida.valor)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(saida.dataPrevista).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

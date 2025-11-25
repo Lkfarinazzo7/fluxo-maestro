@@ -24,11 +24,11 @@ export default function Contratos() {
     contrato.operadora.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const contratosAtivos = contratos.filter(c => c.status === 'ativo');
+  const contratosAtivos = contratos;
   const totalVidas = contratosAtivos.reduce((sum, c) => sum + c.quantidade_vidas, 0);
   const receitaMensalTotal = contratosAtivos.reduce((sum, c) => {
-    const comissao = c.valor_mensalidade * (c.percentual_comissao / 100);
-    return sum + comissao;
+    const receitaBancaria = (c.valor_mensalidade * c.quantidade_vidas * c.percentual_comissao) / 100;
+    return sum + receitaBancaria;
   }, 0);
 
   if (isLoading) {
@@ -57,12 +57,12 @@ export default function Contratos() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Contratos Ativos
+              Contratos
             </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{contratosAtivos.length}</div>
+            <div className="text-2xl font-bold text-foreground">{contratos.length}</div>
           </CardContent>
         </Card>
 
@@ -130,18 +130,14 @@ export default function Contratos() {
                 <TableHead>Nome</TableHead>
                 <TableHead>Operadora</TableHead>
                 <TableHead>Categoria</TableHead>
+                <TableHead>Tipo</TableHead>
                 <TableHead>Vidas</TableHead>
-                <TableHead>Mensalidade</TableHead>
-                <TableHead>Comissão</TableHead>
-                <TableHead>Receita Mensal</TableHead>
-                <TableHead>Bonificação</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Receita da Bancária</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredContratos.map((contrato) => {
-                const receitaMensal = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
-                const bonificacaoMensal = contrato.quantidade_vidas * contrato.bonificacao_por_vida;
+                const receitaMensal = (contrato.valor_mensalidade * contrato.quantidade_vidas * contrato.percentual_comissao) / 100;
                 
                 return (
                   <TableRow key={contrato.id} className="hover:bg-accent cursor-pointer">
@@ -158,33 +154,14 @@ export default function Contratos() {
                     <TableCell>
                       <Badge variant="outline">{contrato.categoria}</Badge>
                     </TableCell>
-                    <TableCell>{contrato.quantidade_vidas}</TableCell>
-                    <TableCell>{formatCurrency(contrato.valor_mensalidade)}</TableCell>
                     <TableCell>
-                      <span className="text-success font-medium">{contrato.percentual_comissao}%</span>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(receitaMensal)}
-                    </TableCell>
-                    <TableCell>
-                      {bonificacaoMensal > 0 ? (
-                        <span className="text-primary font-medium">
-                          {formatCurrency(bonificacaoMensal)}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        className={
-                          contrato.status === 'ativo' 
-                            ? 'bg-success text-success-foreground' 
-                            : 'bg-destructive text-destructive-foreground'
-                        }
-                      >
-                        {contrato.status === 'ativo' ? 'Ativo' : 'Cancelado'}
+                      <Badge variant={contrato.tipo_contrato === 'PJ' ? 'default' : 'secondary'}>
+                        {contrato.tipo_contrato}
                       </Badge>
+                    </TableCell>
+                    <TableCell>{contrato.quantidade_vidas}</TableCell>
+                    <TableCell className="font-medium text-success">
+                      {formatCurrency(receitaMensal)}
                     </TableCell>
                   </TableRow>
                 );
