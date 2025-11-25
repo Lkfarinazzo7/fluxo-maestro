@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
+import { useContratosCRUD } from '@/hooks/useContratosCRUD';
+import { ContratoFormDialog } from '@/components/Forms/ContratoFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -12,11 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { FileText, Search, Plus, Users } from 'lucide-react';
-import { formatCurrency, formatDate } from '@/lib/formatters';
+import { FileText, Search, Users } from 'lucide-react';
+import { formatCurrency } from '@/lib/formatters';
 
 export default function Contratos() {
-  const { contratos } = useApp();
+  const { contratos, isLoading } = useContratosCRUD();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredContratos = contratos.filter(contrato =>
@@ -25,11 +25,22 @@ export default function Contratos() {
   );
 
   const contratosAtivos = contratos.filter(c => c.status === 'ativo');
-  const totalVidas = contratosAtivos.reduce((sum, c) => sum + c.quantidadeVidas, 0);
+  const totalVidas = contratosAtivos.reduce((sum, c) => sum + c.quantidade_vidas, 0);
   const receitaMensalTotal = contratosAtivos.reduce((sum, c) => {
-    const comissao = c.valorMensalidade * (c.percentualComissao / 100);
+    const comissao = c.valor_mensalidade * (c.percentual_comissao / 100);
     return sum + comissao;
   }, 0);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Contratos</h1>
+          <p className="text-muted-foreground">Carregando contratos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -38,10 +49,7 @@ export default function Contratos() {
           <h1 className="text-3xl font-bold text-foreground">Contratos</h1>
           <p className="text-muted-foreground">Gestão de contratos e propostas</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Contrato
-        </Button>
+        <ContratoFormDialog />
       </div>
 
       {/* Métricas resumidas */}
@@ -132,12 +140,12 @@ export default function Contratos() {
             </TableHeader>
             <TableBody>
               {filteredContratos.map((contrato) => {
-                const receitaMensal = contrato.valorMensalidade * (contrato.percentualComissao / 100);
-                const bonificacaoMensal = contrato.quantidadeVidas * contrato.bonificacaoPorVida;
+                const receitaMensal = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
+                const bonificacaoMensal = contrato.quantidade_vidas * contrato.bonificacao_por_vida;
                 
                 return (
                   <TableRow key={contrato.id} className="hover:bg-accent cursor-pointer">
-                    <TableCell className="font-medium">{contrato.id}</TableCell>
+                    <TableCell className="font-medium">{contrato.id.substring(0, 8)}</TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{contrato.nome}</p>
@@ -150,10 +158,10 @@ export default function Contratos() {
                     <TableCell>
                       <Badge variant="outline">{contrato.categoria}</Badge>
                     </TableCell>
-                    <TableCell>{contrato.quantidadeVidas}</TableCell>
-                    <TableCell>{formatCurrency(contrato.valorMensalidade)}</TableCell>
+                    <TableCell>{contrato.quantidade_vidas}</TableCell>
+                    <TableCell>{formatCurrency(contrato.valor_mensalidade)}</TableCell>
                     <TableCell>
-                      <span className="text-success font-medium">{contrato.percentualComissao}%</span>
+                      <span className="text-success font-medium">{contrato.percentual_comissao}%</span>
                     </TableCell>
                     <TableCell className="font-medium">
                       {formatCurrency(receitaMensal)}

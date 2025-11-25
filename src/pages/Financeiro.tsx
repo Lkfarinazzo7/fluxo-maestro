@@ -1,7 +1,9 @@
-import { useApp } from '@/contexts/AppContext';
+import { useReceitasCRUD } from '@/hooks/useReceitasCRUD';
+import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
+import { ReceitaFormDialog } from '@/components/Forms/ReceitaFormDialog';
+import { DespesaFormDialog } from '@/components/Forms/DespesaFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -11,26 +13,38 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DollarSign, TrendingUp, TrendingDown, Plus } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/formatters';
 import { MetricCard } from '@/components/Dashboard/MetricCard';
 
 export default function Financeiro() {
-  const { entradas, saidas } = useApp();
+  const { receitas, isLoading: loadingReceitas } = useReceitasCRUD();
+  const { despesas, isLoading: loadingDespesas } = useDespesasCRUD();
 
-  const entradasRecebidas = entradas.filter(e => e.status === 'recebido');
-  const entradasPrevistas = entradas.filter(e => e.status === 'previsto');
+  const receitasRecebidas = receitas.filter(e => e.status === 'recebido');
+  const receitasPrevistas = receitas.filter(e => e.status === 'previsto');
   
-  const totalReceber = entradasPrevistas.reduce((sum, e) => sum + e.valorPrevisto, 0);
-  const totalRecebido = entradasRecebidas.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
+  const totalReceber = receitasPrevistas.reduce((sum, e) => sum + e.valor_previsto, 0);
+  const totalRecebido = receitasRecebidas.reduce((sum, e) => sum + (e.valor_recebido || 0), 0);
   
-  const saidasPagas = saidas.filter(s => s.status === 'pago');
-  const saidasPrevistas = saidas.filter(s => s.status === 'previsto');
+  const despesasPagas = despesas.filter(s => s.status === 'pago');
+  const despesasPrevistas = despesas.filter(s => s.status === 'previsto');
   
-  const totalPagar = saidasPrevistas.reduce((sum, s) => sum + s.valor, 0);
-  const totalPago = saidasPagas.reduce((sum, s) => sum + s.valor, 0);
+  const totalPagar = despesasPrevistas.reduce((sum, s) => sum + s.valor, 0);
+  const totalPago = despesasPagas.reduce((sum, s) => sum + s.valor, 0);
   
-  const saldoProjetado = totalReceber - totalPagar;
+  const saldoProjetado = totalRecebido + totalReceber - totalPagar;
+
+  if (loadingReceitas || loadingDespesas) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Financeiro</h1>
+          <p className="text-muted-foreground">Carregando dados financeiros...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -39,10 +53,10 @@ export default function Financeiro() {
           <h1 className="text-3xl font-bold text-foreground">Financeiro</h1>
           <p className="text-muted-foreground">Gestão de entradas e saídas</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Transação
-        </Button>
+        <div className="flex gap-2">
+          <ReceitaFormDialog />
+          <DespesaFormDialog />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -98,25 +112,25 @@ export default function Financeiro() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {entradas.map((entrada) => (
-                    <TableRow key={entrada.id} className="hover:bg-accent">
-                      <TableCell className="font-medium">{entrada.id}</TableCell>
+                  {receitas.map((receita) => (
+                    <TableRow key={receita.id} className="hover:bg-accent">
+                      <TableCell className="font-medium">{receita.id.substring(0, 8)}</TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {entrada.tipo === 'bancaria' ? 'Comissão' : entrada.tipo === 'bonificacao' ? 'Bonificação' : 'Avulsa'}
+                          {receita.tipo === 'bancaria' ? 'Comissão' : receita.tipo === 'bonificacao' ? 'Bonificação' : 'Avulsa'}
                         </Badge>
                       </TableCell>
-                      <TableCell>{entrada.contratoNome || '-'}</TableCell>
-                      <TableCell>{entrada.categoria}</TableCell>
-                      <TableCell>{formatCurrency(entrada.valorPrevisto)}</TableCell>
+                      <TableCell>{receita.contrato_nome || '-'}</TableCell>
+                      <TableCell>{receita.categoria}</TableCell>
+                      <TableCell>{formatCurrency(receita.valor_previsto)}</TableCell>
                       <TableCell className="font-medium">
-                        {entrada.valorRecebido ? formatCurrency(entrada.valorRecebido) : '-'}
+                        {receita.valor_recebido ? formatCurrency(receita.valor_recebido) : '-'}
                       </TableCell>
-                      <TableCell>{formatDate(entrada.dataPrevista)}</TableCell>
-                      <TableCell>{entrada.dataRecebida ? formatDate(entrada.dataRecebida) : '-'}</TableCell>
+                      <TableCell>{formatDate(receita.data_prevista)}</TableCell>
+                      <TableCell>{receita.data_recebida ? formatDate(receita.data_recebida) : '-'}</TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(entrada.status)}>
-                          {entrada.status === 'recebido' ? 'Recebido' : 'Previsto'}
+                        <Badge className={getStatusColor(receita.status)}>
+                          {receita.status === 'recebido' ? 'Recebido' : 'Previsto'}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -148,25 +162,25 @@ export default function Financeiro() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {saidas.map((saida) => (
-                    <TableRow key={saida.id} className="hover:bg-accent">
-                      <TableCell className="font-medium">{saida.id}</TableCell>
-                      <TableCell>{saida.categoria}</TableCell>
+                  {despesas.map((despesa) => (
+                    <TableRow key={despesa.id} className="hover:bg-accent">
+                      <TableCell className="font-medium">{despesa.id.substring(0, 8)}</TableCell>
+                      <TableCell>{despesa.categoria}</TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {saida.tipo === 'fixa' ? 'Fixa' : 'Variável'}
+                          {despesa.tipo === 'fixa' ? 'Fixa' : 'Variável'}
                         </Badge>
                       </TableCell>
-                      <TableCell>{saida.fornecedor}</TableCell>
+                      <TableCell>{despesa.fornecedor}</TableCell>
                       <TableCell className="font-medium">
-                        {formatCurrency(saida.valor)}
+                        {formatCurrency(despesa.valor)}
                       </TableCell>
-                      <TableCell>{formatDate(saida.dataPrevista)}</TableCell>
-                      <TableCell>{saida.dataPaga ? formatDate(saida.dataPaga) : '-'}</TableCell>
-                      <TableCell>{saida.formaPagamento}</TableCell>
+                      <TableCell>{formatDate(despesa.data_prevista)}</TableCell>
+                      <TableCell>{despesa.data_paga ? formatDate(despesa.data_paga) : '-'}</TableCell>
+                      <TableCell>{despesa.forma_pagamento}</TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(saida.status)}>
-                          {saida.status === 'pago' ? 'Pago' : 'Previsto'}
+                        <Badge className={getStatusColor(despesa.status)}>
+                          {despesa.status === 'pago' ? 'Pago' : 'Previsto'}
                         </Badge>
                       </TableCell>
                     </TableRow>
