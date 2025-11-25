@@ -22,7 +22,7 @@ export const mockContratos: Contrato[] = [
     categoria: 'Empresarial',
     quantidadeVidas: 25,
     valorMensalidade: 580.00,
-    percentualComissao: 280, // 280% = 2.8x
+    percentualComissao: 280,
     bonificacaoPorVida: 45.00,
     vidasParaBonificacao: 25,
     previsaoRecebimentoBancaria: '5',
@@ -37,7 +37,7 @@ export const mockContratos: Contrato[] = [
     categoria: 'Individual',
     quantidadeVidas: 1,
     valorMensalidade: 890.00,
-    percentualComissao: 200, // 200% = 2.0x
+    percentualComissao: 200,
     bonificacaoPorVida: 0,
     vidasParaBonificacao: 0,
     previsaoRecebimentoBancaria: '15',
