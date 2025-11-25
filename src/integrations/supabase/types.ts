@@ -14,7 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contratos: {
+        Row: {
+          bonificacao_por_vida: number
+          categoria: string
+          created_at: string
+          data_implantacao: string
+          id: string
+          nome: string
+          observacoes: string | null
+          operadora: string
+          percentual_comissao: number
+          previsao_recebimento_bancaria: string | null
+          previsao_recebimento_bonificacao: string | null
+          quantidade_vidas: number
+          status: string
+          tipo_contrato: string
+          updated_at: string
+          valor_mensalidade: number
+        }
+        Insert: {
+          bonificacao_por_vida?: number
+          categoria: string
+          created_at?: string
+          data_implantacao: string
+          id?: string
+          nome: string
+          observacoes?: string | null
+          operadora: string
+          percentual_comissao: number
+          previsao_recebimento_bancaria?: string | null
+          previsao_recebimento_bonificacao?: string | null
+          quantidade_vidas?: number
+          status?: string
+          tipo_contrato: string
+          updated_at?: string
+          valor_mensalidade: number
+        }
+        Update: {
+          bonificacao_por_vida?: number
+          categoria?: string
+          created_at?: string
+          data_implantacao?: string
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          operadora?: string
+          percentual_comissao?: number
+          previsao_recebimento_bancaria?: string | null
+          previsao_recebimento_bonificacao?: string | null
+          quantidade_vidas?: number
+          status?: string
+          tipo_contrato?: string
+          updated_at?: string
+          valor_mensalidade?: number
+        }
+        Relationships: []
+      }
+      despesas: {
+        Row: {
+          categoria: string
+          comprovante: string | null
+          created_at: string
+          data_paga: string | null
+          data_prevista: string
+          forma_pagamento: string
+          fornecedor: string
+          frequencia: string | null
+          id: string
+          nome: string
+          observacao: string | null
+          recorrente: boolean
+          status: string
+          tipo: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          comprovante?: string | null
+          created_at?: string
+          data_paga?: string | null
+          data_prevista: string
+          forma_pagamento: string
+          fornecedor: string
+          frequencia?: string | null
+          id?: string
+          nome: string
+          observacao?: string | null
+          recorrente?: boolean
+          status?: string
+          tipo: string
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          comprovante?: string | null
+          created_at?: string
+          data_paga?: string | null
+          data_prevista?: string
+          forma_pagamento?: string
+          fornecedor?: string
+          frequencia?: string | null
+          id?: string
+          nome?: string
+          observacao?: string | null
+          recorrente?: boolean
+          status?: string
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      receitas: {
+        Row: {
+          categoria: string
+          contrato_id: string | null
+          contrato_nome: string | null
+          created_at: string
+          data_prevista: string
+          data_recebida: string | null
+          forma_recebimento: string
+          id: string
+          observacao: string | null
+          recorrencia: string
+          status: string
+          tipo: string
+          updated_at: string
+          valor_previsto: number
+          valor_recebido: number | null
+        }
+        Insert: {
+          categoria: string
+          contrato_id?: string | null
+          contrato_nome?: string | null
+          created_at?: string
+          data_prevista: string
+          data_recebida?: string | null
+          forma_recebimento: string
+          id?: string
+          observacao?: string | null
+          recorrencia?: string
+          status?: string
+          tipo: string
+          updated_at?: string
+          valor_previsto: number
+          valor_recebido?: number | null
+        }
+        Update: {
+          categoria?: string
+          contrato_id?: string | null
+          contrato_nome?: string | null
+          created_at?: string
+          data_prevista?: string
+          data_recebida?: string | null
+          forma_recebimento?: string
+          id?: string
+          observacao?: string | null
+          recorrencia?: string
+          status?: string
+          tipo?: string
+          updated_at?: string
+          valor_previsto?: number
+          valor_recebido?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receitas_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
