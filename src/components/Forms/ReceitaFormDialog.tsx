@@ -46,6 +46,9 @@ export function ReceitaFormDialog({ trigger }: ReceitaFormDialogProps) {
     defaultValues: {
       status: 'previsto',
       recorrencia: 'sem',
+      tipo: undefined,
+      categoria: '',
+      forma_recebimento: '',
     },
   });
 

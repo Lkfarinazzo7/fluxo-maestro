@@ -22,8 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
-import { despesaSchema, DespesaFormValues } from '@/lib/validations';
-import { PlusCircle } from 'lucide-react';
+import { despesaSchema, DespesaFormValues, CATEGORIAS_DESPESAS } from '@/lib/validations';
+import { PlusCircle, Upload } from 'lucide-react';
 
 interface DespesaFormDialogProps {
   trigger?: React.ReactNode;
@@ -45,6 +45,8 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
     defaultValues: {
       status: 'previsto',
       recorrente: false,
+      tipo: undefined,
+      categoria: undefined,
     },
   });
 
@@ -97,7 +99,18 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
 
             <div className="space-y-2">
               <Label htmlFor="categoria">Categoria *</Label>
-              <Input id="categoria" {...register('categoria')} placeholder="Ex: Aluguel, Marketing" />
+              <Select onValueChange={(value) => setValue('categoria', value as any)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIAS_DESPESAS.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.categoria && (
                 <p className="text-sm text-destructive">{String(errors.categoria.message)}</p>
               )}
@@ -195,6 +208,29 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
                 </p>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="comprovante">Anexar Comprovante</Label>
+            <div className="flex items-center gap-2">
+              <Input 
+                id="comprovante" 
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Por enquanto, armazena apenas o nome do arquivo
+                    setValue('comprovante', file.name);
+                  }
+                }}
+                className="cursor-pointer"
+              />
+              <Upload className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Formatos aceitos: PDF, imagens (PNG, JPG)
+            </p>
           </div>
 
           <div className="space-y-2">
