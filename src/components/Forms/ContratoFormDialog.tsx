@@ -31,13 +31,19 @@ import { cn } from '@/lib/utils';
 
 interface ContratoFormDialogProps {
   trigger?: React.ReactNode;
+  contrato?: any;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
-  const [open, setOpen] = useState(false);
+export function ContratoFormDialog({ trigger, contrato, open: controlledOpen, onOpenChange }: ContratoFormDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
+  
   const [dataBancaria, setDataBancaria] = useState<Date>();
   const [dataBonificacao, setDataBonificacao] = useState<Date>();
-  const { createContrato, isCreating } = useContratosCRUD();
+  const { createContrato, updateContrato, isCreating, isUpdating } = useContratosCRUD();
   
   const {
     register,
@@ -48,21 +54,45 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
     watch,
   } = useForm<ContratoFormValues>({
     resolver: zodResolver(contratoSchema),
-    defaultValues: {
+    defaultValues: contrato || {
       tipo_contrato: undefined,
       operadora: undefined,
     },
   });
 
+  // Populate form when editing
+  useState(() => {
+    if (contrato) {
+      Object.keys(contrato).forEach((key) => {
+        setValue(key as any, contrato[key]);
+      });
+      if (contrato.previsao_recebimento_bancaria) {
+        setDataBancaria(new Date(contrato.previsao_recebimento_bancaria));
+      }
+      if (contrato.previsao_recebimento_bonificacao) {
+        setDataBonificacao(new Date(contrato.previsao_recebimento_bonificacao));
+      }
+    }
+  });
+
   const valorMensalidade = watch('valor_mensalidade');
 
   const onSubmit = (data: ContratoFormValues) => {
-    createContrato(data as any, {
-      onSuccess: () => {
-        setOpen(false);
-        reset();
-      },
-    });
+    if (contrato) {
+      updateContrato({ id: contrato.id, data: data as any }, {
+        onSuccess: () => {
+          setOpen(false);
+          reset();
+        },
+      });
+    } else {
+      createContrato(data as any, {
+        onSuccess: () => {
+          setOpen(false);
+          reset();
+        },
+      });
+    }
   };
 
   return (
@@ -77,9 +107,9 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Contrato</DialogTitle>
+          <DialogTitle>{contrato ? 'Editar Contrato' : 'Novo Contrato'}</DialogTitle>
           <DialogDescription>
-            Preencha os dados do novo contrato
+            {contrato ? 'Atualize os dados do contrato' : 'Preencha os dados do novo contrato'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -267,8 +297,8 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isCreating}>
-              {isCreating ? 'Salvando...' : 'Salvar Contrato'}
+            <Button type="submit" disabled={isCreating || isUpdating}>
+              {isCreating || isUpdating ? 'Salvando...' : contrato ? 'Atualizar Contrato' : 'Salvar Contrato'}
             </Button>
           </div>
         </form>

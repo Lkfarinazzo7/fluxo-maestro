@@ -37,7 +37,11 @@ export function useReceitasCRUD() {
     mutationFn: async (data: ReceitaFormData) => {
       const { data: receita, error } = await supabase
         .from('receitas')
-        .insert([data])
+        .insert([{
+          ...data,
+          valor_recebido: data.status === 'recebido' ? data.valor_recebido : null,
+          data_recebida: data.status === 'recebido' ? data.data_recebida : null,
+        }])
         .select()
         .single();
       
@@ -62,9 +66,16 @@ export function useReceitasCRUD() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ReceitaFormData> }) => {
+      // Clean up data based on status
+      const updateData = { ...data };
+      if (data.status === 'previsto') {
+        updateData.valor_recebido = null;
+        updateData.data_recebida = null;
+      }
+      
       const { data: receita, error } = await supabase
         .from('receitas')
-        .update(data)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();

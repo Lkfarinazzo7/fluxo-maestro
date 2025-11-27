@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useReceitasCRUD } from '@/hooks/useReceitasCRUD';
 import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
 import { ReceitaFormDialog } from '@/components/Forms/ReceitaFormDialog';
+import { ReceitaEditDialog } from '@/components/Forms/ReceitaEditDialog';
 import { DespesaFormDialog } from '@/components/Forms/DespesaFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -13,13 +16,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Pencil } from 'lucide-react';
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/lib/formatters';
 import { MetricCard } from '@/components/Dashboard/MetricCard';
 
 export default function Financeiro() {
   const { receitas, isLoading: loadingReceitas } = useReceitasCRUD();
   const { despesas, isLoading: loadingDespesas } = useDespesasCRUD();
+  const [editingReceita, setEditingReceita] = useState<any>(null);
 
   const receitasRecebidas = receitas.filter(e => e.status === 'recebido');
   const receitasPrevistas = receitas.filter(e => e.status === 'previsto');
@@ -109,6 +113,7 @@ export default function Financeiro() {
                     <TableHead>Data Prevista</TableHead>
                     <TableHead>Data Recebida</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -132,6 +137,15 @@ export default function Financeiro() {
                         <Badge className={getStatusColor(receita.status)}>
                           {receita.status === 'recebido' ? 'Recebido' : 'Previsto'}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingReceita(receita)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -191,6 +205,14 @@ export default function Financeiro() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {editingReceita && (
+        <ReceitaEditDialog
+          receita={editingReceita}
+          open={!!editingReceita}
+          onOpenChange={(open) => !open && setEditingReceita(null)}
+        />
+      )}
     </div>
   );
 }

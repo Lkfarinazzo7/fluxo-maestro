@@ -24,6 +24,17 @@ export const CATEGORIAS_DESPESAS = [
   'Outros',
 ] as const;
 
+// Formas de pagamento pré-definidas
+export const FORMAS_PAGAMENTO = [
+  'Dinheiro',
+  'PIX',
+  'Boleto',
+  'Cartão de Crédito',
+  'Cartão de Débito',
+  'Transferência Bancária',
+  'Outros',
+] as const;
+
 export const contratoSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   operadora: z.enum(OPERADORAS as any, {
@@ -72,9 +83,11 @@ export const despesaSchema = z.object({
   fornecedor: z.string().min(2, 'Fornecedor é obrigatório'),
   recorrente: z.boolean().default(false),
   duracao_meses: z.coerce.number().int().min(1).optional(),
-  data_prevista: z.string().min(1, 'Data prevista é obrigatória'),
+  data_prevista: z.string().min(1, 'Data de vencimento é obrigatória'),
   data_paga: z.string().optional(),
-  forma_pagamento: z.string().min(2, 'Forma de pagamento é obrigatória'),
+  forma_pagamento: z.enum(FORMAS_PAGAMENTO as any, {
+    required_error: 'Forma de pagamento é obrigatória',
+  }),
   comprovante: z.string().optional(),
   observacao: z.string().optional(),
   status: z.enum(['previsto', 'pago']).default('previsto'),
