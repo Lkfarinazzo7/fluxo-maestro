@@ -21,8 +21,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useContratosCRUD } from '@/hooks/useContratosCRUD';
-import { contratoSchema, ContratoFormValues } from '@/lib/validations';
-import { PlusCircle } from 'lucide-react';
+import { contratoSchema, ContratoFormValues, OPERADORAS } from '@/lib/validations';
+import { PlusCircle, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface ContratoFormDialogProps {
   trigger?: React.ReactNode;
@@ -30,6 +35,8 @@ interface ContratoFormDialogProps {
 
 export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const [dataBancaria, setDataBancaria] = useState<Date>();
+  const [dataBonificacao, setDataBonificacao] = useState<Date>();
   const { createContrato, isCreating } = useContratosCRUD();
   
   const {
@@ -38,9 +45,16 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
     formState: { errors },
     reset,
     setValue,
+    watch,
   } = useForm<ContratoFormValues>({
     resolver: zodResolver(contratoSchema),
+    defaultValues: {
+      tipo_contrato: undefined,
+      operadora: undefined,
+    },
   });
+
+  const valorMensalidade = watch('valor_mensalidade');
 
   const onSubmit = (data: ContratoFormValues) => {
     createContrato(data as any, {
@@ -80,7 +94,18 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
 
             <div className="space-y-2">
               <Label htmlFor="operadora">Operadora *</Label>
-              <Input id="operadora" {...register('operadora')} />
+              <Select onValueChange={(value) => setValue('operadora', value as any)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a operadora" />
+                </SelectTrigger>
+                <SelectContent>
+                  {OPERADORAS.map((op) => (
+                    <SelectItem key={op} value={op}>
+                      {op}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.operadora && (
                 <p className="text-sm text-destructive">{String(errors.operadora.message)}</p>
               )}
@@ -112,7 +137,22 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
 
             <div className="space-y-2">
               <Label htmlFor="valor_mensalidade">Valor da Mensalidade *</Label>
-              <Input id="valor_mensalidade" type="number" step="0.01" {...register('valor_mensalidade')} />
+              <Input 
+                id="valor_mensalidade" 
+                type="text"
+                {...register('valor_mensalidade')}
+                placeholder="R$ 0,00"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  const numValue = parseFloat(value) / 100;
+                  setValue('valor_mensalidade', numValue);
+                  e.target.value = numValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                }}
+                onBlur={(e) => {
+                  const numValue = parseFloat(String(valorMensalidade || 0));
+                  e.target.value = numValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                }}
+              />
               {errors.valor_mensalidade && (
                 <p className="text-sm text-destructive">{errors.valor_mensalidade.message}</p>
               )}
@@ -151,13 +191,70 @@ export function ContratoFormDialog({ trigger }: ContratoFormDialogProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="previsao_recebimento_bancaria">Previsão Recebimento Bancária (dia do mês)</Label>
-              <Input id="previsao_recebimento_bancaria" {...register('previsao_recebimento_bancaria')} placeholder="Ex: 5" />
+              <Label htmlFor="previsao_recebimento_bancaria">Previsão Recebimento Bancária *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dataBancaria && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dataBancaria ? format(dataBancaria, "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dataBancaria}
+                    onSelect={(date) => {
+                      setDataBancaria(date);
+                      if (date) {
+                        setValue('previsao_recebimento_bancaria', format(date, 'yyyy-MM-dd'));
+                      }
+                    }}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              {errors.previsao_recebimento_bancaria && (
+                <p className="text-sm text-destructive">{errors.previsao_recebimento_bancaria.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="previsao_recebimento_bonificacao">Previsão Recebimento Bonificação (dia do mês)</Label>
-              <Input id="previsao_recebimento_bonificacao" {...register('previsao_recebimento_bonificacao')} placeholder="Ex: 10" />
+              <Label htmlFor="previsao_recebimento_bonificacao">Previsão Recebimento Bonificação</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dataBonificacao && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dataBonificacao ? format(dataBonificacao, "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dataBonificacao}
+                    onSelect={(date) => {
+                      setDataBonificacao(date);
+                      if (date) {
+                        setValue('previsao_recebimento_bonificacao', format(date, 'yyyy-MM-dd'));
+                      }
+                    }}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
