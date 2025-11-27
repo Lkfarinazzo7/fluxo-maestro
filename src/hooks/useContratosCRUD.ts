@@ -44,8 +44,8 @@ export function useContratosCRUD() {
       
       if (error) throw error;
 
-      // Calcular valor da bancária
-      const valorBancaria = (data.valor_mensalidade * data.quantidade_vidas * data.percentual_comissao) / 100;
+      // Calcular valor da bancária (comissão)
+      const valorBancaria = data.valor_mensalidade * (data.percentual_comissao / 100);
 
       // Criar receita de bancária automaticamente
       const { error: receitaBancariaError } = await supabase

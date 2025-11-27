@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
-import { despesaSchema, DespesaFormValues, CATEGORIAS_DESPESAS } from '@/lib/validations';
+import { despesaSchema, DespesaFormValues, CATEGORIAS_DESPESAS, FORMAS_PAGAMENTO } from '@/lib/validations';
 import { PlusCircle, Upload } from 'lucide-react';
 
 interface DespesaFormDialogProps {
@@ -142,14 +142,25 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
 
             <div className="space-y-2">
               <Label htmlFor="forma_pagamento">Forma de Pagamento *</Label>
-              <Input id="forma_pagamento" {...register('forma_pagamento')} placeholder="Ex: Boleto, Cartão" />
+              <Select onValueChange={(value) => setValue('forma_pagamento', value as any)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FORMAS_PAGAMENTO.map((forma) => (
+                    <SelectItem key={forma} value={forma}>
+                      {forma}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.forma_pagamento && (
-                <p className="text-sm text-destructive">{errors.forma_pagamento.message}</p>
+                <p className="text-sm text-destructive">{String(errors.forma_pagamento.message)}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="data_prevista">Data Prevista *</Label>
+              <Label htmlFor="data_prevista">Data de Vencimento *</Label>
               <Input id="data_prevista" type="date" {...register('data_prevista')} />
               {errors.data_prevista && (
                 <p className="text-sm text-destructive">{errors.data_prevista.message}</p>
@@ -174,7 +185,7 @@ export function DespesaFormDialog({ trigger }: DespesaFormDialogProps) {
 
             {status === 'pago' && (
               <div className="space-y-2">
-                <Label htmlFor="data_paga">Data Paga</Label>
+                <Label htmlFor="data_paga">Data de Pagamento</Label>
                 <Input id="data_paga" type="date" {...register('data_paga')} />
               </div>
             )}

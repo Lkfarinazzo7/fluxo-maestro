@@ -36,14 +36,32 @@ export function useDespesasCRUD() {
 
   const createMutation = useMutation({
     mutationFn: async (data: DespesaFormData) => {
-      const { data: despesa, error } = await supabase
+      const despesas = [data];
+      
+      // Se for recorrente, criar lançamentos futuros
+      if (data.recorrente && data.duracao_meses && data.duracao_meses > 1) {
+        const baseDate = new Date(data.data_prevista);
+        
+        for (let i = 1; i < data.duracao_meses; i++) {
+          const nextDate = new Date(baseDate);
+          nextDate.setMonth(nextDate.getMonth() + i);
+          
+          despesas.push({
+            ...data,
+            data_prevista: nextDate.toISOString().split('T')[0],
+            data_paga: undefined,
+            status: 'previsto' as const,
+          });
+        }
+      }
+      
+      const { data: createdDespesas, error } = await supabase
         .from('despesas')
-        .insert([data])
-        .select()
-        .single();
+        .insert(despesas)
+        .select();
       
       if (error) throw error;
-      return despesa;
+      return createdDespesas;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['despesas'] });

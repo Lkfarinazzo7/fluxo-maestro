@@ -4,6 +4,7 @@ import { ContratoFormDialog } from '@/components/Forms/ContratoFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -12,22 +13,44 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { FileText, Search, Users } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { FileText, Search, Users, Pencil } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 export default function Contratos() {
   const { contratos, isLoading } = useContratosCRUD();
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState<'all' | 'created' | 'implanted'>('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [editingContrato, setEditingContrato] = useState<any>(null);
 
-  const filteredContratos = contratos.filter(contrato =>
-    contrato.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contrato.operadora.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredContratos = contratos.filter(contrato => {
+    const matchesSearch = contrato.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contrato.operadora.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    if (dateFilter === 'all' || !startDate || !endDate) return true;
+    
+    const filterDate = dateFilter === 'created' ? contrato.created_at : contrato.data_implantacao;
+    const contratoDate = new Date(filterDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    return contratoDate >= start && contratoDate <= end;
+  });
 
   const contratosAtivos = contratos;
   const totalVidas = contratosAtivos.reduce((sum, c) => sum + c.quantidade_vidas, 0);
   const receitaMensalTotal = contratosAtivos.reduce((sum, c) => {
-    const receitaBancaria = (c.valor_mensalidade * c.quantidade_vidas * c.percentual_comissao) / 100;
+    const receitaBancaria = c.valor_mensalidade * (c.percentual_comissao / 100);
     return sum + receitaBancaria;
   }, 0);
 
@@ -110,15 +133,49 @@ export default function Contratos() {
       {/* Busca e filtros */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome ou operadora..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome ou operadora..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Filtrar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="created">Data de Cadastro</SelectItem>
+                  <SelectItem value="implanted">Data de Implantação</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {dateFilter !== 'all' && (
+                <>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    placeholder="Data inicial"
+                    className="w-[160px]"
+                  />
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    placeholder="Data final"
+                    className="w-[160px]"
+                  />
+                </>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -133,14 +190,15 @@ export default function Contratos() {
                 <TableHead>Tipo</TableHead>
                 <TableHead>Vidas</TableHead>
                 <TableHead>Receita da Bancária</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredContratos.map((contrato) => {
-                const receitaMensal = (contrato.valor_mensalidade * contrato.quantidade_vidas * contrato.percentual_comissao) / 100;
+                const receitaMensal = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
                 
                 return (
-                  <TableRow key={contrato.id} className="hover:bg-accent cursor-pointer">
+                  <TableRow key={contrato.id} className="hover:bg-accent">
                     <TableCell className="font-medium">{contrato.id.substring(0, 8)}</TableCell>
                     <TableCell>
                       <div>
@@ -163,6 +221,15 @@ export default function Contratos() {
                     <TableCell className="font-medium text-success">
                       {formatCurrency(receitaMensal)}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingContrato(contrato)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -170,6 +237,15 @@ export default function Contratos() {
           </Table>
         </CardContent>
       </Card>
+
+      {editingContrato && (
+        <ContratoFormDialog
+          trigger={null}
+          contrato={editingContrato}
+          open={!!editingContrato}
+          onOpenChange={(open) => !open && setEditingContrato(null)}
+        />
+      )}
     </div>
   );
 }
