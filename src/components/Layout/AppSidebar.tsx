@@ -3,6 +3,7 @@ import {
   FileText, 
   DollarSign, 
   BarChart3,
+  Calculator,
   Settings 
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -23,6 +24,7 @@ const menuItems = [
   { title: 'Contratos', url: '/contratos', icon: FileText },
   { title: 'Financeiro', url: '/financeiro', icon: DollarSign },
   { title: 'Relatórios', url: '/relatorios', icon: BarChart3 },
+  { title: 'Calculadora', url: '/calculadora', icon: Calculator },
   { title: 'Configurações', url: '/configuracoes', icon: Settings },
 ];
 

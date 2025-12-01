@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Contratos from "./pages/Contratos";
 import Financeiro from "./pages/Financeiro";
 import Relatorios from "./pages/Relatorios";
+import Calculadora from "./pages/Calculadora";
 import Configuracoes from "./pages/Configuracoes";
 import FluxoCaixa from "./pages/Relatorios/FluxoCaixa";
 import DRE from "./pages/Relatorios/DRE";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/relatorios/ticket-medio" element={<AppLayout><TicketMedio /></AppLayout>} />
             <Route path="/relatorios/vendedores" element={<AppLayout><RelatorioVendedores /></AppLayout>} />
             <Route path="/relatorios/supervisores" element={<AppLayout><RelatorioSupervisores /></AppLayout>} />
+            <Route path="/calculadora" element={<AppLayout><Calculadora /></AppLayout>} />
             <Route path="/configuracoes" element={<AppLayout><Configuracoes /></AppLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

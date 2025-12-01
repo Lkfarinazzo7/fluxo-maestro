@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Save } from 'lucide-react';
+import { VendedoresManager } from '@/components/Configuracoes/VendedoresManager';
+import { SupervisoresManager } from '@/components/Configuracoes/SupervisoresManager';
 
 export default function Configuracoes() {
   return (
@@ -120,6 +122,10 @@ export default function Configuracoes() {
             <Button variant="outline">Gerenciar Formas de Pagamento</Button>
           </CardContent>
         </Card>
+
+        <VendedoresManager />
+        
+        <SupervisoresManager />
       </div>
     </div>
   );
