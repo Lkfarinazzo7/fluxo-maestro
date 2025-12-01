@@ -21,6 +21,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useContratosCRUD } from '@/hooks/useContratosCRUD';
+import { useVendedores } from '@/hooks/useVendedores';
+import { useSupervisores } from '@/hooks/useSupervisores';
 import { contratoSchema, ContratoFormValues, OPERADORAS } from '@/lib/validations';
 import { PlusCircle, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -44,6 +46,8 @@ export function ContratoFormDialog({ trigger, contrato, open: controlledOpen, on
   const [dataBancaria, setDataBancaria] = useState<Date>();
   const [dataBonificacao, setDataBonificacao] = useState<Date>();
   const { createContrato, updateContrato, isCreating, isUpdating } = useContratosCRUD();
+  const { vendedores } = useVendedores();
+  const { supervisores } = useSupervisores();
   
   const {
     register,
@@ -291,7 +295,21 @@ export function ContratoFormDialog({ trigger, contrato, open: controlledOpen, on
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="vendedor_responsavel">Vendedor Responsável</Label>
-              <Input id="vendedor_responsavel" {...register('vendedor_responsavel')} placeholder="Nome do vendedor" />
+              <Select 
+                onValueChange={(value) => setValue('vendedor_responsavel', value)}
+                defaultValue={contrato?.vendedor_responsavel}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o vendedor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendedores.map((vendedor) => (
+                    <SelectItem key={vendedor.id} value={vendedor.nome}>
+                      {vendedor.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -301,7 +319,21 @@ export function ContratoFormDialog({ trigger, contrato, open: controlledOpen, on
 
             <div className="space-y-2">
               <Label htmlFor="supervisor">Supervisor</Label>
-              <Input id="supervisor" {...register('supervisor')} placeholder="Nome do supervisor" />
+              <Select 
+                onValueChange={(value) => setValue('supervisor', value)}
+                defaultValue={contrato?.supervisor}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o supervisor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {supervisores.map((supervisor) => (
+                    <SelectItem key={supervisor.id} value={supervisor.nome}>
+                      {supervisor.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
