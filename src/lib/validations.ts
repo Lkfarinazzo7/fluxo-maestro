@@ -14,8 +14,9 @@ export const OPERADORAS = [
 
 // Categorias de despesas pré-definidas
 export const CATEGORIAS_DESPESAS = [
-  'Aluguel',
+  'Comissão',
   'Salários',
+  'Aluguel',
   'Marketing',
   'Tecnologia',
   'Transporte',

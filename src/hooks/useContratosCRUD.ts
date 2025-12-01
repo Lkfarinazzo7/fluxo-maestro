@@ -110,7 +110,7 @@ export function useContratosCRUD() {
           .insert([{
             nome: `Comissão ${data.vendedor_responsavel} - ${data.nome}`,
             valor: valorComissaoVendedor,
-            categoria: 'Salários',
+            categoria: 'Comissão',
             tipo: 'variavel',
             fornecedor: data.vendedor_responsavel,
             recorrente: true,
@@ -135,7 +135,7 @@ export function useContratosCRUD() {
           .insert([{
             nome: `Comissão ${data.supervisor} - ${data.nome}`,
             valor: valorComissaoSupervisor,
-            categoria: 'Salários',
+            categoria: 'Comissão',
             tipo: 'variavel',
             fornecedor: data.supervisor,
             recorrente: true,
