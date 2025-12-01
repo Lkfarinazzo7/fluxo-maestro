@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, TrendingUp, DollarSign, BarChart3, PieChart, Award } from 'lucide-react';
+import { FileText, TrendingUp, DollarSign, BarChart3, PieChart, Award, Users, UserCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const relatorios = [
@@ -44,6 +44,20 @@ const relatorios = [
     nome: 'Ticket Médio dos Contratos', 
     descricao: 'Análise de ticket médio e variações por período',
     icon: Award,
+    color: 'text-success'
+  },
+  { 
+    id: 'vendedores',
+    nome: 'Relatório de Vendedores', 
+    descricao: 'Desempenho, comissões e contratos por vendedor',
+    icon: Users,
+    color: 'text-primary'
+  },
+  { 
+    id: 'supervisores',
+    nome: 'Relatório de Supervisores', 
+    descricao: 'Desempenho, comissões e contratos por supervisor',
+    icon: UserCheck,
     color: 'text-success'
   },
 ];

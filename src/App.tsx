@@ -16,6 +16,8 @@ import ReceitasComparativo from "./pages/Relatorios/ReceitasComparativo";
 import DespesasCategoria from "./pages/Relatorios/DespesasCategoria";
 import ContratosOperadora from "./pages/Relatorios/ContratosOperadora";
 import TicketMedio from "./pages/Relatorios/TicketMedio";
+import RelatorioVendedores from "./pages/Relatorios/RelatorioVendedores";
+import RelatorioSupervisores from "./pages/Relatorios/RelatorioSupervisores";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/relatorios/despesas-categoria" element={<AppLayout><DespesasCategoria /></AppLayout>} />
             <Route path="/relatorios/contratos-operadora" element={<AppLayout><ContratosOperadora /></AppLayout>} />
             <Route path="/relatorios/ticket-medio" element={<AppLayout><TicketMedio /></AppLayout>} />
+            <Route path="/relatorios/vendedores" element={<AppLayout><RelatorioVendedores /></AppLayout>} />
+            <Route path="/relatorios/supervisores" element={<AppLayout><RelatorioSupervisores /></AppLayout>} />
             <Route path="/configuracoes" element={<AppLayout><Configuracoes /></AppLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

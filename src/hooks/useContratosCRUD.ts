@@ -103,7 +103,7 @@ export function useContratosCRUD() {
 
       // Criar despesa de comissão para o vendedor
       if (data.vendedor_responsavel && data.percentual_comissao_vendedor && data.percentual_comissao_vendedor > 0) {
-        const valorComissaoVendedor = valorBancaria * (data.percentual_comissao_vendedor / 100);
+        const valorComissaoVendedor = data.valor_mensalidade * (data.percentual_comissao_vendedor / 100);
         
         const { error: despesaVendedorError } = await supabase
           .from('despesas')
@@ -128,7 +128,7 @@ export function useContratosCRUD() {
 
       // Criar despesa de comissão para o supervisor
       if (data.supervisor && data.percentual_comissao_supervisor && data.percentual_comissao_supervisor > 0) {
-        const valorComissaoSupervisor = valorBancaria * (data.percentual_comissao_supervisor / 100);
+        const valorComissaoSupervisor = data.valor_mensalidade * (data.percentual_comissao_supervisor / 100);
         
         const { error: despesaSupervisorError } = await supabase
           .from('despesas')
