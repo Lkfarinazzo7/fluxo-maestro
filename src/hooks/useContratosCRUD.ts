@@ -14,6 +14,10 @@ export interface ContratoFormData {
   data_implantacao: string;
   previsao_recebimento_bancaria: string;
   previsao_recebimento_bonificacao?: string;
+  vendedor_responsavel?: string;
+  percentual_comissao_vendedor?: number;
+  supervisor?: string;
+  percentual_comissao_supervisor?: number;
   observacoes?: string;
 }
 
@@ -87,6 +91,63 @@ export function useContratosCRUD() {
 
         if (receitaBonificacaoError) {
           console.error('Erro ao criar receita de bonificação:', receitaBonificacaoError);
+        }
+      }
+
+      // Calcular próximo 5º dia útil (simplificado: próximo mês, dia 5)
+      const dataImplantacao = new Date(data.data_implantacao);
+      const proximoMes = new Date(dataImplantacao);
+      proximoMes.setMonth(proximoMes.getMonth() + 1);
+      proximoMes.setDate(5);
+      const dataPagamentoComissao = proximoMes.toISOString().split('T')[0];
+
+      // Criar despesa de comissão para o vendedor
+      if (data.vendedor_responsavel && data.percentual_comissao_vendedor && data.percentual_comissao_vendedor > 0) {
+        const valorComissaoVendedor = valorBancaria * (data.percentual_comissao_vendedor / 100);
+        
+        const { error: despesaVendedorError } = await supabase
+          .from('despesas')
+          .insert([{
+            nome: `Comissão ${data.vendedor_responsavel} - ${data.nome}`,
+            valor: valorComissaoVendedor,
+            categoria: 'Salários',
+            tipo: 'variavel',
+            fornecedor: data.vendedor_responsavel,
+            recorrente: true,
+            duracao_meses: 12,
+            data_prevista: dataPagamentoComissao,
+            forma_pagamento: 'Transferência Bancária',
+            observacao: `Comissão de vendedor sobre contrato ${data.nome}`,
+            status: 'previsto',
+          }]);
+
+        if (despesaVendedorError) {
+          console.error('Erro ao criar despesa de comissão do vendedor:', despesaVendedorError);
+        }
+      }
+
+      // Criar despesa de comissão para o supervisor
+      if (data.supervisor && data.percentual_comissao_supervisor && data.percentual_comissao_supervisor > 0) {
+        const valorComissaoSupervisor = valorBancaria * (data.percentual_comissao_supervisor / 100);
+        
+        const { error: despesaSupervisorError } = await supabase
+          .from('despesas')
+          .insert([{
+            nome: `Comissão ${data.supervisor} - ${data.nome}`,
+            valor: valorComissaoSupervisor,
+            categoria: 'Salários',
+            tipo: 'variavel',
+            fornecedor: data.supervisor,
+            recorrente: true,
+            duracao_meses: 12,
+            data_prevista: dataPagamentoComissao,
+            forma_pagamento: 'Transferência Bancária',
+            observacao: `Comissão de supervisor sobre contrato ${data.nome}`,
+            status: 'previsto',
+          }]);
+
+        if (despesaSupervisorError) {
+          console.error('Erro ao criar despesa de comissão do supervisor:', despesaSupervisorError);
         }
       }
 

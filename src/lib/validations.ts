@@ -51,6 +51,10 @@ export const contratoSchema = z.object({
   data_implantacao: z.string().min(1, 'Data de implantação é obrigatória'),
   previsao_recebimento_bancaria: z.string().min(1, 'Data de previsão de recebimento é obrigatória'),
   previsao_recebimento_bonificacao: z.string().optional(),
+  vendedor_responsavel: z.string().optional(),
+  percentual_comissao_vendedor: z.coerce.number().min(0).default(0),
+  supervisor: z.string().optional(),
+  percentual_comissao_supervisor: z.coerce.number().min(0).default(0),
   observacoes: z.string().optional(),
 });
 

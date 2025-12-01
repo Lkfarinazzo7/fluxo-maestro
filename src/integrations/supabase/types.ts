@@ -25,12 +25,16 @@ export type Database = {
           observacoes: string | null
           operadora: string
           percentual_comissao: number
+          percentual_comissao_supervisor: number | null
+          percentual_comissao_vendedor: number | null
           previsao_recebimento_bancaria: string | null
           previsao_recebimento_bonificacao: string | null
           quantidade_vidas: number
+          supervisor: string | null
           tipo_contrato: string
           updated_at: string
           valor_mensalidade: number
+          vendedor_responsavel: string | null
         }
         Insert: {
           bonificacao_por_vida?: number
@@ -42,12 +46,16 @@ export type Database = {
           observacoes?: string | null
           operadora: string
           percentual_comissao: number
+          percentual_comissao_supervisor?: number | null
+          percentual_comissao_vendedor?: number | null
           previsao_recebimento_bancaria?: string | null
           previsao_recebimento_bonificacao?: string | null
           quantidade_vidas?: number
+          supervisor?: string | null
           tipo_contrato: string
           updated_at?: string
           valor_mensalidade: number
+          vendedor_responsavel?: string | null
         }
         Update: {
           bonificacao_por_vida?: number
@@ -59,12 +67,16 @@ export type Database = {
           observacoes?: string | null
           operadora?: string
           percentual_comissao?: number
+          percentual_comissao_supervisor?: number | null
+          percentual_comissao_vendedor?: number | null
           previsao_recebimento_bancaria?: string | null
           previsao_recebimento_bonificacao?: string | null
           quantidade_vidas?: number
+          supervisor?: string | null
           tipo_contrato?: string
           updated_at?: string
           valor_mensalidade?: number
+          vendedor_responsavel?: string | null
         }
         Relationships: []
       }
