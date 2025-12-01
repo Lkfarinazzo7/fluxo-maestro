@@ -189,6 +189,7 @@ export default function Contratos() {
                 <TableHead>Categoria</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Vidas</TableHead>
+                <TableHead>Mensalidade</TableHead>
                 <TableHead>Receita da Bancária</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -218,6 +219,9 @@ export default function Contratos() {
                       </Badge>
                     </TableCell>
                     <TableCell>{contrato.quantidade_vidas}</TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(contrato.valor_mensalidade)}
+                    </TableCell>
                     <TableCell className="font-medium text-success">
                       {formatCurrency(receitaMensal)}
                     </TableCell>

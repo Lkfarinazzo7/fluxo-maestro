@@ -288,6 +288,28 @@ export function ContratoFormDialog({ trigger, contrato, open: controlledOpen, on
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="vendedor_responsavel">Vendedor Responsável</Label>
+              <Input id="vendedor_responsavel" {...register('vendedor_responsavel')} placeholder="Nome do vendedor" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="percentual_comissao_vendedor">Comissão Vendedor (%)</Label>
+              <Input id="percentual_comissao_vendedor" type="number" step="0.01" {...register('percentual_comissao_vendedor')} placeholder="Ex: 30" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="supervisor">Supervisor</Label>
+              <Input id="supervisor" {...register('supervisor')} placeholder="Nome do supervisor" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="percentual_comissao_supervisor">Comissão Supervisor (%)</Label>
+              <Input id="percentual_comissao_supervisor" type="number" step="0.01" {...register('percentual_comissao_supervisor')} placeholder="Ex: 30" />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="observacoes">Observações</Label>
             <Textarea id="observacoes" {...register('observacoes')} rows={3} />
