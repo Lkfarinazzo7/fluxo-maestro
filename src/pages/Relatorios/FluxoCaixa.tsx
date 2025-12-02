@@ -39,14 +39,15 @@ export default function FluxoCaixa() {
   const { entradasRecebidas: entradasComparativo } = useEntries(comparativoDateRange);
   const { saidasPagas: saidasComparativo } = useExpenses(comparativoDateRange);
 
-  const receitaRecebida = entradasRecebidas.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
-  const receitaPrevista = entradasPrevistas.reduce((sum, e) => sum + e.valorPrevisto, 0);
+  // Calcular totais usando campos snake_case do Supabase
+  const receitaRecebida = entradasRecebidas.reduce((sum, e) => sum + (e.valor_recebido || 0), 0);
+  const receitaPrevista = entradasPrevistas.reduce((sum, e) => sum + e.valor_previsto, 0);
   const despesaPaga = saidasPagas.reduce((sum, s) => sum + s.valor, 0);
   const despesaPrevista = saidasPrevistas.reduce((sum, s) => sum + s.valor, 0);
   const saldoRealizado = receitaRecebida - despesaPaga;
   const saldoProjetado = (receitaRecebida + receitaPrevista) - (despesaPaga + despesaPrevista);
 
-  const receitaComparativo = entradasComparativo.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
+  const receitaComparativo = entradasComparativo.reduce((sum, e) => sum + (e.valor_recebido || 0), 0);
   const despesaComparativo = saidasComparativo.reduce((sum, s) => sum + s.valor, 0);
   const saldoComparativo = receitaComparativo - despesaComparativo;
 
@@ -180,9 +181,9 @@ export default function FluxoCaixa() {
                   entradasRecebidas.map((entrada) => (
                     <TableRow key={entrada.id}>
                       <TableCell>{entrada.categoria}</TableCell>
-                      <TableCell>{entrada.dataRecebida ? formatDate(entrada.dataRecebida) : '-'}</TableCell>
+                      <TableCell>{entrada.data_recebida ? formatDate(entrada.data_recebida) : '-'}</TableCell>
                       <TableCell className="text-right font-medium text-success">
-                        {formatCurrency(entrada.valorRecebido || 0)}
+                        {formatCurrency(entrada.valor_recebido || 0)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -219,7 +220,7 @@ export default function FluxoCaixa() {
                   saidasPagas.map((saida) => (
                     <TableRow key={saida.id}>
                       <TableCell>{saida.categoria}</TableCell>
-                      <TableCell>{saida.dataPaga ? formatDate(saida.dataPaga) : '-'}</TableCell>
+                      <TableCell>{saida.data_paga ? formatDate(saida.data_paga) : '-'}</TableCell>
                       <TableCell className="text-right font-medium text-destructive">
                         {formatCurrency(saida.valor)}
                       </TableCell>

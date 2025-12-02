@@ -76,19 +76,19 @@ export default function Dashboard() {
       }
 
       const entradasInterval = entradasRecebidas.filter(e => {
-        if (!e.dataRecebida) return false;
-        const d = new Date(e.dataRecebida);
+        if (!e.data_recebida) return false;
+        const d = new Date(e.data_recebida);
         return d >= intervalStart && d <= intervalEnd;
       });
 
       const saidasInterval = entradasPrevistas.filter(e => {
-        const d = new Date(e.dataPrevista);
+        const d = new Date(e.data_prevista);
         return d >= intervalStart && d <= intervalEnd;
       });
 
       return {
         periodo: format(date, formatStr, { locale: ptBR }),
-        entradas: entradasInterval.reduce((sum, e) => sum + (e.valorRecebido || 0), 0),
+        entradas: entradasInterval.reduce((sum, e) => sum + (e.valor_recebido || 0), 0),
         saidas: 0, // Placeholder - would be calculated from saidas
       };
     });
@@ -269,15 +269,15 @@ export default function Dashboard() {
               {entradasPrevistas.slice(0, 8).map((entrada) => (
                 <div key={entrada.id} className="flex items-center justify-between border-b pb-3 last:border-0">
                   <div>
-                    <p className="font-medium text-foreground">{entrada.contratoNome || 'Receita Avulsa'}</p>
+                    <p className="font-medium text-foreground">{entrada.contrato_nome || 'Receita Avulsa'}</p>
                     <p className="text-sm text-muted-foreground">
                       {entrada.tipo === 'bancaria' ? 'Comissão Bancária' : entrada.tipo === 'bonificacao' ? 'Bonificação' : entrada.categoria}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-success">{formatCurrency(entrada.valorPrevisto)}</p>
+                    <p className="font-medium text-success">{formatCurrency(entrada.valor_previsto)}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(entrada.dataPrevista).toLocaleDateString('pt-BR')}
+                      {new Date(entrada.data_prevista).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export default function Dashboard() {
                   <div className="text-right">
                     <p className="font-medium text-destructive">{formatCurrency(saida.valor)}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(saida.dataPrevista).toLocaleDateString('pt-BR')}
+                      {new Date(saida.data_prevista).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                 </div>
