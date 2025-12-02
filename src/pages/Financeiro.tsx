@@ -4,6 +4,7 @@ import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
 import { ReceitaFormDialog } from '@/components/Forms/ReceitaFormDialog';
 import { ReceitaEditDialog } from '@/components/Forms/ReceitaEditDialog';
 import { DespesaFormDialog } from '@/components/Forms/DespesaFormDialog';
+import { DespesaEditDialog } from '@/components/Forms/DespesaEditDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ export default function Financeiro() {
   const { receitas, isLoading: loadingReceitas } = useReceitasCRUD();
   const { despesas, isLoading: loadingDespesas } = useDespesasCRUD();
   const [editingReceita, setEditingReceita] = useState<any>(null);
+  const [editingDespesa, setEditingDespesa] = useState<any>(null);
   
   // Filtros para receitas
   const [receitaPeriodo, setReceitaPeriodo] = useState<string>('todos');
@@ -355,6 +357,7 @@ export default function Financeiro() {
                     <TableHead>Data Paga</TableHead>
                     <TableHead>Forma Pagamento</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -379,6 +382,15 @@ export default function Financeiro() {
                           {despesa.status === 'pago' ? 'Pago' : 'Previsto'}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingDespesa(despesa)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -393,6 +405,14 @@ export default function Financeiro() {
           receita={editingReceita}
           open={!!editingReceita}
           onOpenChange={(open) => !open && setEditingReceita(null)}
+        />
+      )}
+
+      {editingDespesa && (
+        <DespesaEditDialog
+          despesa={editingDespesa}
+          open={!!editingDespesa}
+          onOpenChange={(open) => !open && setEditingDespesa(null)}
         />
       )}
     </div>
