@@ -26,7 +26,7 @@ export default function DRE() {
   const { entradasRecebidas } = useEntries(dateRange);
   const { saidasPagas } = useExpenses(dateRange);
 
-  const receitaBruta = entradasRecebidas.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
+  const receitaBruta = entradasRecebidas.reduce((sum, e) => sum + (e.valor_recebido || 0), 0);
   
   // Separar despesas variáveis (incluindo comissões) e fixas
   const despesasVariaveis = saidasPagas.filter(s => s.tipo === 'variavel');

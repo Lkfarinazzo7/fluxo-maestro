@@ -1,33 +1,35 @@
 import { useMemo } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { DateRange, filterByDateRange } from '@/lib/dateFilters';
+import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
+import { DateRange, isDateInRange } from '@/lib/dateFilters';
 
 export function useExpenses(dateRange?: DateRange) {
-  const { saidas } = useApp();
+  const { despesas, isLoading } = useDespesasCRUD();
 
-  const filteredSaidas = useMemo(() => {
-    if (!dateRange) return saidas;
+  const filteredDespesas = useMemo(() => {
+    if (!dateRange || !despesas) return despesas || [];
     
-    // Para saídas pagas, filtrar por dataPaga
-    const pagas = saidas
-      .filter(s => s.status === 'pago' && s.dataPaga)
-      .filter(s => filterByDateRange([s], 'dataPaga', dateRange).length > 0);
-    
-    // Para saídas previstas, filtrar por dataPrevista
-    const previstas = saidas
-      .filter(s => s.status === 'previsto')
-      .filter(s => filterByDateRange([s], 'dataPrevista', dateRange).length > 0);
-    
-    return [...pagas, ...previstas];
-  }, [saidas, dateRange]);
+    return despesas.filter(despesa => {
+      // Para despesas pagas, filtrar por data_paga
+      if (despesa.status === 'pago' && despesa.data_paga) {
+        return isDateInRange(despesa.data_paga, dateRange);
+      }
+      
+      // Para despesas previstas, filtrar por data_prevista
+      if (despesa.status === 'previsto') {
+        return isDateInRange(despesa.data_prevista, dateRange);
+      }
+      
+      return false;
+    });
+  }, [despesas, dateRange]);
 
   const saidasPagas = useMemo(() => {
-    return filteredSaidas.filter(s => s.status === 'pago');
-  }, [filteredSaidas]);
+    return filteredDespesas.filter(s => s.status === 'pago');
+  }, [filteredDespesas]);
 
   const saidasPrevistas = useMemo(() => {
-    return filteredSaidas.filter(s => s.status === 'previsto');
-  }, [filteredSaidas]);
+    return filteredDespesas.filter(s => s.status === 'previsto');
+  }, [filteredDespesas]);
 
   const totalPago = useMemo(() => {
     return saidasPagas.reduce((sum, s) => sum + s.valor, 0);
@@ -38,7 +40,7 @@ export function useExpenses(dateRange?: DateRange) {
   }, [saidasPrevistas]);
 
   const porCategoria = useMemo(() => {
-    const grouped = filteredSaidas.reduce((acc, saida) => {
+    const grouped = filteredDespesas.reduce((acc, saida) => {
       if (!acc[saida.categoria]) {
         acc[saida.categoria] = {
           categoria: saida.categoria,
@@ -52,14 +54,15 @@ export function useExpenses(dateRange?: DateRange) {
     }, {} as Record<string, { categoria: string; total: number; quantidade: number }>);
 
     return Object.values(grouped);
-  }, [filteredSaidas]);
+  }, [filteredDespesas]);
 
   return {
-    saidas: filteredSaidas,
+    despesas: filteredDespesas,
     saidasPagas,
     saidasPrevistas,
     totalPago,
     totalPrevisto,
     porCategoria,
+    isLoading,
   };
 }

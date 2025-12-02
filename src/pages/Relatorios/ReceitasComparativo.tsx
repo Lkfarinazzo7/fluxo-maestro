@@ -25,9 +25,9 @@ export default function ReceitasComparativo() {
   const { entradas } = useApp();
   const { entradasRecebidas, entradasPrevistas } = useEntries(dateRange);
 
-  const totalPrevisto = [...entradasRecebidas, ...entradasPrevistas].reduce((sum, e) => sum + e.valorPrevisto, 0);
-  const totalRecebido = entradasRecebidas.reduce((sum, e) => sum + (e.valorRecebido || 0), 0);
-  const totalPendente = entradasPrevistas.reduce((sum, e) => sum + e.valorPrevisto, 0);
+  const totalPrevisto = [...entradasRecebidas, ...entradasPrevistas].reduce((sum, e) => sum + e.valor_previsto, 0);
+  const totalRecebido = entradasRecebidas.reduce((sum, e) => sum + (e.valor_recebido || 0), 0);
+  const totalPendente = entradasPrevistas.reduce((sum, e) => sum + e.valor_previsto, 0);
   const percentualRecebido = totalPrevisto > 0 ? (totalRecebido / totalPrevisto) * 100 : 0;
 
   const chartData = [
@@ -133,16 +133,16 @@ export default function ReceitasComparativo() {
                 </TableRow>
               ) : (
                 [...entradasRecebidas, ...entradasPrevistas]
-                  .sort((a, b) => new Date(a.dataPrevista).getTime() - new Date(b.dataPrevista).getTime())
+                  .sort((a, b) => new Date(a.data_prevista).getTime() - new Date(b.data_prevista).getTime())
                   .map((entrada) => (
                     <TableRow key={entrada.id}>
                       <TableCell className="font-medium">{entrada.tipo}</TableCell>
                       <TableCell>{entrada.categoria}</TableCell>
-                      <TableCell>{formatDate(entrada.dataPrevista)}</TableCell>
-                      <TableCell>{entrada.dataRecebida ? formatDate(entrada.dataRecebida) : '-'}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(entrada.valorPrevisto)}</TableCell>
+                      <TableCell>{formatDate(entrada.data_prevista)}</TableCell>
+                      <TableCell>{entrada.data_recebida ? formatDate(entrada.data_recebida) : '-'}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(entrada.valor_previsto)}</TableCell>
                       <TableCell className="text-right font-medium text-success">
-                        {entrada.valorRecebido ? formatCurrency(entrada.valorRecebido) : '-'}
+                        {entrada.valor_recebido ? formatCurrency(entrada.valor_recebido) : '-'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={entrada.status === 'recebido' ? 'default' : 'secondary'}>
