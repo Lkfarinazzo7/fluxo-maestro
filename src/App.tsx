@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "./contexts/AppContext";
+import { AuthProvider } from "./hooks/useAuth";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/Layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Contratos from "./pages/Contratos";
@@ -19,6 +21,7 @@ import ContratosOperadora from "./pages/Relatorios/ContratosOperadora";
 import TicketMedio from "./pages/Relatorios/TicketMedio";
 import RelatorioVendedores from "./pages/Relatorios/RelatorioVendedores";
 import RelatorioSupervisores from "./pages/Relatorios/RelatorioSupervisores";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,29 +29,32 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AppProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
-            <Route path="/contratos" element={<AppLayout><Contratos /></AppLayout>} />
-            <Route path="/financeiro" element={<AppLayout><Financeiro /></AppLayout>} />
-            <Route path="/relatorios" element={<AppLayout><Relatorios /></AppLayout>} />
-            <Route path="/relatorios/fluxo-caixa" element={<AppLayout><FluxoCaixa /></AppLayout>} />
-            <Route path="/relatorios/dre" element={<AppLayout><DRE /></AppLayout>} />
-            <Route path="/relatorios/receitas-comparativo" element={<AppLayout><ReceitasComparativo /></AppLayout>} />
-            <Route path="/relatorios/despesas-categoria" element={<AppLayout><DespesasCategoria /></AppLayout>} />
-            <Route path="/relatorios/contratos-operadora" element={<AppLayout><ContratosOperadora /></AppLayout>} />
-            <Route path="/relatorios/ticket-medio" element={<AppLayout><TicketMedio /></AppLayout>} />
-            <Route path="/relatorios/vendedores" element={<AppLayout><RelatorioVendedores /></AppLayout>} />
-            <Route path="/relatorios/supervisores" element={<AppLayout><RelatorioSupervisores /></AppLayout>} />
-            <Route path="/calculadora" element={<AppLayout><Calculadora /></AppLayout>} />
-            <Route path="/configuracoes" element={<AppLayout><Configuracoes /></AppLayout>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AppProvider>
+      <AuthProvider>
+        <AppProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+              <Route path="/contratos" element={<ProtectedRoute><AppLayout><Contratos /></AppLayout></ProtectedRoute>} />
+              <Route path="/financeiro" element={<ProtectedRoute><AppLayout><Financeiro /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios" element={<ProtectedRoute><AppLayout><Relatorios /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/fluxo-caixa" element={<ProtectedRoute><AppLayout><FluxoCaixa /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/dre" element={<ProtectedRoute><AppLayout><DRE /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/receitas-comparativo" element={<ProtectedRoute><AppLayout><ReceitasComparativo /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/despesas-categoria" element={<ProtectedRoute><AppLayout><DespesasCategoria /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/contratos-operadora" element={<ProtectedRoute><AppLayout><ContratosOperadora /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/ticket-medio" element={<ProtectedRoute><AppLayout><TicketMedio /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/vendedores" element={<ProtectedRoute><AppLayout><RelatorioVendedores /></AppLayout></ProtectedRoute>} />
+              <Route path="/relatorios/supervisores" element={<ProtectedRoute><AppLayout><RelatorioSupervisores /></AppLayout></ProtectedRoute>} />
+              <Route path="/calculadora" element={<ProtectedRoute><AppLayout><Calculadora /></AppLayout></ProtectedRoute>} />
+              <Route path="/configuracoes" element={<ProtectedRoute><AppLayout><Configuracoes /></AppLayout></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AppProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
