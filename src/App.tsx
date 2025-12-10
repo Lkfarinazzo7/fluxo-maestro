@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -30,11 +29,10 @@ const queryClient = new QueryClient();
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+      <TooltipProvider delayDuration={300}>
         <AuthProvider>
           <AppProvider>
-            <Toaster />
-            <Sonner />
+            <Sonner position="top-right" />
             <BrowserRouter>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
