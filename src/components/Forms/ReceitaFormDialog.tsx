@@ -102,15 +102,20 @@ export function ReceitaFormDialog({ trigger }: ReceitaFormDialogProps) {
             <div className="space-y-2">
               <Label htmlFor="contrato_id">Contrato (opcional)</Label>
               <Select onValueChange={(value) => {
-                setValue('contrato_id', value);
-                const contrato = contratos.find(c => c.id === value);
-                if (contrato) setValue('contrato_nome', contrato.nome);
+                if (value === "__none__") {
+                  setValue('contrato_id', null);
+                  setValue('contrato_nome', null);
+                } else {
+                  setValue('contrato_id', value);
+                  const contrato = contratos.find(c => c.id === value);
+                  if (contrato) setValue('contrato_nome', contrato.nome);
+                }
               }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um contrato" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="__none__">Nenhum</SelectItem>
                   {contratos?.map((contrato) => (
                     <SelectItem key={contrato.id} value={contrato.id}>
                       {contrato.nome}
