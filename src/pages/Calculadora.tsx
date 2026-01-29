@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/lib/formatters';
 import { Calculator, TrendingUp, Target, Users, CheckCircle, DollarSign } from 'lucide-react';
@@ -20,17 +19,15 @@ export default function Calculadora() {
   const roi = gastoTotal > 0 ? ((retornoFinanceiro - gastoTotal) / gastoTotal) * 100 : 0;
   const roiAbsoluto = retornoFinanceiro - gastoTotal;
 
-  // Estado para Métricas de Funil
+  // Estado para Métricas de Funil de Vendas (simplificado)
   const [leadsGerados, setLeadsGerados] = useState<number>(0);
-  const [oportunidadesFunil, setOportunidadesFunil] = useState<number>(0);
   const [reunioesRealizadas, setReunioes] = useState<number>(0);
   const [contratosFechados, setContratosFechados] = useState<number>(0);
   const [valorTotalContratos, setValorTotalContratos] = useState<number>(0);
 
-  // Cálculos do Funil
+  // Cálculos do Funil (simplificado)
   const ticketMedio = contratosFechados > 0 ? valorTotalContratos / contratosFechados : 0;
-  const convLeadsOportunidades = leadsGerados > 0 ? (oportunidadesFunil / leadsGerados) * 100 : 0;
-  const convOportunidadesReunioes = oportunidadesFunil > 0 ? (reunioesRealizadas / oportunidadesFunil) * 100 : 0;
+  const convLeadsReunioes = leadsGerados > 0 ? (reunioesRealizadas / leadsGerados) * 100 : 0;
   const convReunioesContratos = reunioesRealizadas > 0 ? (contratosFechados / reunioesRealizadas) * 100 : 0;
   const convLeadsContratos = leadsGerados > 0 ? (contratosFechados / leadsGerados) * 100 : 0;
 
@@ -138,7 +135,7 @@ export default function Calculadora() {
 
       <Separator />
 
-      {/* Métricas de Funil */}
+      {/* Métricas de Funil de Vendas - Simplificado */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -148,7 +145,7 @@ export default function Calculadora() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Inputs do Funil */}
+            {/* Inputs do Funil - Simplificado */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="leads">Leads Gerados</Label>
@@ -159,17 +156,6 @@ export default function Calculadora() {
                   value={leadsGerados || ''}
                   onChange={(e) => setLeadsGerados(parseInt(e.target.value) || 0)}
                   placeholder="Ex: 250"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="oportunidades-funil">Oportunidades</Label>
-                <Input
-                  id="oportunidades-funil"
-                  type="number"
-                  min="0"
-                  value={oportunidadesFunil || ''}
-                  onChange={(e) => setOportunidadesFunil(parseInt(e.target.value) || 0)}
-                  placeholder="Ex: 25"
                 />
               </div>
               <div className="space-y-2">
@@ -225,26 +211,13 @@ export default function Calculadora() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Leads → Oportunidades</span>
-                    <span className="font-bold text-primary">{convLeadsOportunidades.toFixed(2)}%</span>
+                    <span className="text-muted-foreground">Leads → Reuniões</span>
+                    <span className="font-bold text-primary">{convLeadsReunioes.toFixed(2)}%</span>
                   </div>
                   <div className="w-full bg-background rounded-full h-2">
                     <div
                       className="bg-primary h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min(convLeadsOportunidades, 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Oportunidades → Reuniões</span>
-                    <span className="font-bold text-primary">{convOportunidadesReunioes.toFixed(2)}%</span>
-                  </div>
-                  <div className="w-full bg-background rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all"
-                      style={{ width: `${Math.min(convOportunidadesReunioes, 100)}%` }}
+                      style={{ width: `${Math.min(convLeadsReunioes, 100)}%` }}
                     />
                   </div>
                 </div>

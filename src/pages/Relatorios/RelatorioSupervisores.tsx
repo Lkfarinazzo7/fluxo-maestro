@@ -48,7 +48,7 @@ export default function RelatorioSupervisores() {
       // Calcular comissões (despesas do supervisor)
       const comissoes = despesas.filter(d => 
         d.fornecedor === supervisor.nome && 
-        d.categoria === 'Salários' &&
+        d.categoria === 'Comissão' &&
         filterByDateRange([d], 'data_prevista', dateRange).length > 0
       );
       const totalComissao = comissoes.reduce((sum, d) => sum + Number(d.valor), 0);

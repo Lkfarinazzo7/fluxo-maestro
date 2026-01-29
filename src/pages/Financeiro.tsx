@@ -5,6 +5,7 @@ import { ReceitaFormDialog } from '@/components/Forms/ReceitaFormDialog';
 import { ReceitaEditDialog } from '@/components/Forms/ReceitaEditDialog';
 import { DespesaFormDialog } from '@/components/Forms/DespesaFormDialog';
 import { DespesaEditDialog } from '@/components/Forms/DespesaEditDialog';
+import { ExcelImportDialog } from '@/components/Forms/ExcelImportDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,7 @@ export default function Financeiro() {
   // Filtros de status
   const [receitaStatus, setReceitaStatus] = useState<string>('todos');
   const [despesaStatus, setDespesaStatus] = useState<string>('todos');
+  const [despesaCategoria, setDespesaCategoria] = useState<string>('todas');
 
   // Ordenação receitas
   const [receitaSortField, setReceitaSortField] = useState<ReceitaSortField>('data_recebida');
@@ -156,6 +158,11 @@ export default function Financeiro() {
         return false;
       }
       
+      // Filtro de categoria
+      if (despesaCategoria !== 'todas' && despesa.categoria !== despesaCategoria) {
+        return false;
+      }
+      
       // Filtro de período
       if (dateRange) {
         if (despesa.status === 'pago' && despesa.data_paga) {
@@ -212,7 +219,13 @@ export default function Financeiro() {
     }
 
     return filtered;
-  }, [despesas, despesaStatus, dateRange, despesaSortField, despesaSortDirection]);
+  }, [despesas, despesaStatus, despesaCategoria, dateRange, despesaSortField, despesaSortDirection]);
+
+  // Obter categorias únicas para o filtro
+  const categoriasUnicas = useMemo(() => {
+    const cats = new Set(despesas.map(d => d.categoria));
+    return Array.from(cats).sort();
+  }, [despesas]);
 
   // Cálculos para os indicadores (usando filtros aplicados)
   const totalReceber = receitasFiltradas.filter(e => e.status === 'previsto').reduce((sum, e) => sum + e.valor_previsto, 0);
@@ -288,6 +301,7 @@ export default function Financeiro() {
             <p className="text-muted-foreground">Gestão de entradas e saídas</p>
           </div>
           <div className="flex gap-2">
+            <ExcelImportDialog />
             <ReceitaFormDialog />
             <DespesaFormDialog />
           </div>
@@ -511,16 +525,29 @@ export default function Financeiro() {
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <CardTitle>Saídas / Despesas</CardTitle>
-                <Select value={despesaStatus} onValueChange={setDespesaStatus}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="pago">Pago</SelectItem>
-                    <SelectItem value="previsto">Não Pago</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={despesaCategoria} onValueChange={setDespesaCategoria}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas">Todas Categorias</SelectItem>
+                      {categoriasUnicas.map((cat) => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={despesaStatus} onValueChange={setDespesaStatus}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="pago">Pago</SelectItem>
+                      <SelectItem value="previsto">Não Pago</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

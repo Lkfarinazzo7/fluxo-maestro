@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PeriodFilter } from '@/components/Dashboard/PeriodFilter';
 import { useState, useMemo } from 'react';
-import { DateRange, PeriodType, getPeriodRange } from '@/lib/dateFilters';
-import { useContracts } from '@/hooks/useContracts';
-import { formatCurrency, formatDate } from '@/lib/formatters';
+import { DateRange, PeriodType, getPeriodRange, filterByDateRange } from '@/lib/dateFilters';
+import { useContratosCRUD } from '@/hooks/useContratosCRUD';
+import { formatCurrency } from '@/lib/formatters';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function TicketMedio() {
   const navigate = useNavigate();
@@ -20,22 +20,27 @@ export default function TicketMedio() {
     return getPeriodRange(periodType, customStart, customEnd);
   }, [periodType, customStart, customEnd]);
 
-  const { contratos } = useContracts(dateRange);
+  const { contratos: allContratos } = useContratosCRUD();
+
+  // Filtrar contratos pelo período de implantação
+  const contratos = useMemo(() => {
+    return filterByDateRange(allContratos, 'data_implantacao', dateRange);
+  }, [allContratos, dateRange]);
 
   const ticketMedioGeral = contratos.length > 0
-    ? contratos.reduce((sum, c) => sum + c.valorMensalidade, 0) / contratos.length
+    ? contratos.reduce((sum, c) => sum + Number(c.valor_mensalidade), 0) / contratos.length
     : 0;
 
   const ticketMedioComComissao = contratos.length > 0
-    ? contratos.reduce((sum, c) => sum + (c.valorMensalidade * (c.percentualComissao / 100)), 0) / contratos.length
+    ? contratos.reduce((sum, c) => sum + (Number(c.valor_mensalidade) * (Number(c.percentual_comissao) / 100)), 0) / contratos.length
     : 0;
 
   const maiorTicket = contratos.length > 0
-    ? Math.max(...contratos.map(c => c.valorMensalidade))
+    ? Math.max(...contratos.map(c => Number(c.valor_mensalidade)))
     : 0;
 
   const menorTicket = contratos.length > 0
-    ? Math.min(...contratos.map(c => c.valorMensalidade))
+    ? Math.min(...contratos.map(c => Number(c.valor_mensalidade)))
     : 0;
 
   // Agrupar por operadora para análise
@@ -47,7 +52,7 @@ export default function TicketMedio() {
         quantidade: 0
       };
     }
-    acc[contrato.operadora].totalMensalidade += contrato.valorMensalidade;
+    acc[contrato.operadora].totalMensalidade += Number(contrato.valor_mensalidade);
     acc[contrato.operadora].quantidade += 1;
     return acc;
   }, {} as Record<string, { operadora: string; totalMensalidade: number; quantidade: number }>);
@@ -159,17 +164,17 @@ export default function TicketMedio() {
                 </TableRow>
               ) : (
                 contratos
-                  .sort((a, b) => b.valorMensalidade - a.valorMensalidade)
+                  .sort((a, b) => Number(b.valor_mensalidade) - Number(a.valor_mensalidade))
                   .map((contrato) => {
-                    const comissaoReal = contrato.valorMensalidade * (contrato.percentualComissao / 100);
-                    const ticketPorVida = contrato.valorMensalidade / contrato.quantidadeVidas;
+                    const comissaoReal = Number(contrato.valor_mensalidade) * (Number(contrato.percentual_comissao) / 100);
+                    const ticketPorVida = Number(contrato.valor_mensalidade) / Number(contrato.quantidade_vidas);
                     
                     return (
                       <TableRow key={contrato.id}>
                         <TableCell className="font-medium">{contrato.nome}</TableCell>
                         <TableCell>{contrato.operadora}</TableCell>
-                        <TableCell className="text-center">{contrato.quantidadeVidas}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(contrato.valorMensalidade)}</TableCell>
+                        <TableCell className="text-center">{contrato.quantidade_vidas}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(Number(contrato.valor_mensalidade))}</TableCell>
                         <TableCell className="text-right font-bold text-success">
                           {formatCurrency(comissaoReal)}
                         </TableCell>
@@ -184,7 +189,7 @@ export default function TicketMedio() {
                 <TableRow className="font-bold bg-muted/50">
                   <TableCell colSpan={2}>MÉDIA GERAL</TableCell>
                   <TableCell className="text-center">
-                    {(contratos.reduce((sum, c) => sum + c.quantidadeVidas, 0) / contratos.length).toFixed(0)}
+                    {(contratos.reduce((sum, c) => sum + Number(c.quantidade_vidas), 0) / contratos.length).toFixed(0)}
                   </TableCell>
                   <TableCell className="text-right text-primary">{formatCurrency(ticketMedioGeral)}</TableCell>
                   <TableCell className="text-right text-success">{formatCurrency(ticketMedioComComissao)}</TableCell>

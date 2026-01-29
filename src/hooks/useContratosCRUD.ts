@@ -94,12 +94,50 @@ export function useContratosCRUD() {
         }
       }
 
-      // Calcular próximo 5º dia útil (simplificado: próximo mês, dia 5)
+      // Calcular 5º dia útil do mês seguinte para comissão do vendedor
       const dataImplantacao = new Date(data.data_implantacao);
       const proximoMes = new Date(dataImplantacao);
       proximoMes.setMonth(proximoMes.getMonth() + 1);
-      proximoMes.setDate(5);
-      const dataPagamentoComissao = proximoMes.toISOString().split('T')[0];
+      
+      // Função para calcular o 5º dia útil do mês
+      const get5thBusinessDay = (year: number, month: number): Date => {
+        let businessDays = 0;
+        let day = 0;
+        while (businessDays < 5) {
+          day++;
+          const date = new Date(year, month, day);
+          const dayOfWeek = date.getDay();
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            businessDays++;
+          }
+        }
+        return new Date(year, month, day);
+      };
+      
+      const dataPagamentoVendedor = get5thBusinessDay(proximoMes.getFullYear(), proximoMes.getMonth());
+      const dataPagamentoVendedorStr = dataPagamentoVendedor.toISOString().split('T')[0];
+
+      // Calcular a sexta-feira da mesma semana da implantação para comissão do supervisor
+      const getFridayOfWeek = (date: Date): Date => {
+        const result = new Date(date);
+        const dayOfWeek = result.getDay();
+        // Se for domingo (0), próxima sexta é em 5 dias
+        // Se for segunda (1), próxima sexta é em 4 dias
+        // Se for sábado (6), foi ontem, então vamos para a próxima sexta
+        let daysToFriday: number;
+        if (dayOfWeek === 0) {
+          daysToFriday = 5;
+        } else if (dayOfWeek === 6) {
+          daysToFriday = 6;
+        } else {
+          daysToFriday = 5 - dayOfWeek;
+        }
+        result.setDate(result.getDate() + daysToFriday);
+        return result;
+      };
+      
+      const dataPagamentoSupervisor = getFridayOfWeek(dataImplantacao);
+      const dataPagamentoSupervisorStr = dataPagamentoSupervisor.toISOString().split('T')[0];
 
       // Criar despesa de comissão para o vendedor
       if (data.vendedor_responsavel && data.percentual_comissao_vendedor && data.percentual_comissao_vendedor > 0) {
@@ -115,9 +153,9 @@ export function useContratosCRUD() {
             fornecedor: data.vendedor_responsavel,
             recorrente: true,
             duracao_meses: 12,
-            data_prevista: dataPagamentoComissao,
+            data_prevista: dataPagamentoVendedorStr,
             forma_pagamento: 'Transferência Bancária',
-            observacao: `Comissão de vendedor sobre contrato ${data.nome}`,
+            observacao: `Comissão de vendedor sobre contrato ${data.nome}. Pagamento no 5º dia útil do mês seguinte à implantação.`,
             status: 'previsto',
           }]);
 
@@ -140,9 +178,9 @@ export function useContratosCRUD() {
             fornecedor: data.supervisor,
             recorrente: true,
             duracao_meses: 12,
-            data_prevista: dataPagamentoComissao,
+            data_prevista: dataPagamentoSupervisorStr,
             forma_pagamento: 'Transferência Bancária',
-            observacao: `Comissão de supervisor sobre contrato ${data.nome}`,
+            observacao: `Comissão de supervisor sobre contrato ${data.nome}. Pagamento na sexta-feira da semana da implantação.`,
             status: 'previsto',
           }]);
 

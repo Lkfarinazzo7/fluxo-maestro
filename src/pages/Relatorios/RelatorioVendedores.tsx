@@ -48,7 +48,7 @@ export default function RelatorioVendedores() {
       // Calcular comissões (despesas do vendedor)
       const comissoes = despesas.filter(d => 
         d.fornecedor === vendedor.nome && 
-        d.categoria === 'Salários' &&
+        d.categoria === 'Comissão' &&
         filterByDateRange([d], 'data_prevista', dateRange).length > 0
       );
       const totalComissao = comissoes.reduce((sum, d) => sum + Number(d.valor), 0);
