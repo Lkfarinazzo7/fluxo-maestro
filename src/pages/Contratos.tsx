@@ -20,16 +20,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FileText, Search, Users, Pencil } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { FileText, Search, Users, Pencil, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 export default function Contratos() {
-  const { contratos, isLoading } = useContratosCRUD();
+  const { contratos, isLoading, deleteContrato } = useContratosCRUD();
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState<'all' | 'created' | 'implanted'>('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [editingContrato, setEditingContrato] = useState<any>(null);
+  const [deletingContrato, setDeletingContrato] = useState<string | null>(null);
 
   const filteredContratos = contratos.filter(contrato => {
     const matchesSearch = contrato.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -53,6 +64,13 @@ export default function Contratos() {
     const receitaBancaria = c.valor_mensalidade * (c.percentual_comissao / 100);
     return sum + receitaBancaria;
   }, 0);
+
+  const handleDeleteContrato = () => {
+    if (deletingContrato) {
+      deleteContrato(deletingContrato);
+      setDeletingContrato(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -191,6 +209,7 @@ export default function Contratos() {
                 <TableHead>Vidas</TableHead>
                 <TableHead>Mensalidade</TableHead>
                 <TableHead>Receita da Bancária</TableHead>
+                <TableHead>Vendedor</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -226,13 +245,26 @@ export default function Contratos() {
                       {formatCurrency(receitaMensal)}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingContrato(contrato)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      {contrato.vendedor_responsavel || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingContrato(contrato)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeletingContrato(contrato.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -250,6 +282,24 @@ export default function Contratos() {
           onOpenChange={(open) => !open && setEditingContrato(null)}
         />
       )}
+
+      {/* Dialog de confirmação para excluir contrato */}
+      <AlertDialog open={!!deletingContrato} onOpenChange={(open) => !open && setDeletingContrato(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este contrato? Esta ação não pode ser desfeita e as receitas/despesas associadas permanecerão no sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteContrato} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -6,8 +6,14 @@ import { Separator } from '@/components/ui/separator';
 import { Save } from 'lucide-react';
 import { VendedoresManager } from '@/components/Configuracoes/VendedoresManager';
 import { SupervisoresManager } from '@/components/Configuracoes/SupervisoresManager';
+import { SettingsManager } from '@/components/Configuracoes/SettingsManager';
+import { useOperadoras, useCategoriasDespesas, useFormasPagamento } from '@/hooks/useSettings';
 
 export default function Configuracoes() {
+  const { operadoras, addOperadora, removeOperadora, resetOperadoras } = useOperadoras();
+  const { categorias, addCategoria, removeCategoria, resetCategorias } = useCategoriasDespesas();
+  const { formasPagamento, addFormaPagamento, removeFormaPagamento, resetFormasPagamento } = useFormasPagamento();
+
   return (
     <div className="space-y-6">
       <div>
@@ -50,78 +56,30 @@ export default function Configuracoes() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Operadoras</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Operadoras Cadastradas</Label>
-              <div className="flex flex-wrap gap-2">
-                {['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Hapvida', 'Porto Seguro Saúde'].map((op) => (
-                  <div key={op} className="px-3 py-1 bg-muted rounded-md text-sm">
-                    {op}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Button variant="outline">Gerenciar Operadoras</Button>
-          </CardContent>
-        </Card>
+        <SettingsManager
+          title="Operadoras"
+          items={operadoras}
+          onAdd={addOperadora}
+          onRemove={removeOperadora}
+          onReset={resetOperadoras}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Categorias</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium">Categorias de Receitas</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['Comissão Bancária', 'Bonificação', 'Consultoria', 'Serviços'].map((cat) => (
-                    <div key={cat} className="px-3 py-1 bg-success/10 text-success rounded-md text-sm">
-                      {cat}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <Label className="text-sm font-medium">Categorias de Despesas</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {['Salários', 'Aluguel', 'Marketing', 'Energia', 'Internet', 'Contador', 'Software', 'Impostos'].map((cat) => (
-                    <div key={cat} className="px-3 py-1 bg-destructive/10 text-destructive rounded-md text-sm">
-                      {cat}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <Button variant="outline">Gerenciar Categorias</Button>
-          </CardContent>
-        </Card>
+        <SettingsManager
+          title="Categorias de Despesas"
+          items={categorias}
+          onAdd={addCategoria}
+          onRemove={removeCategoria}
+          onReset={resetCategorias}
+          badgeClassName="bg-destructive/10 text-destructive"
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Formas de Pagamento</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Formas Disponíveis</Label>
-              <div className="flex flex-wrap gap-2">
-                {['PIX', 'Transferência Bancária', 'Boleto', 'Cartão de Crédito', 'Débito Automático'].map((forma) => (
-                  <div key={forma} className="px-3 py-1 bg-muted rounded-md text-sm">
-                    {forma}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Button variant="outline">Gerenciar Formas de Pagamento</Button>
-          </CardContent>
-        </Card>
+        <SettingsManager
+          title="Formas de Pagamento"
+          items={formasPagamento}
+          onAdd={addFormaPagamento}
+          onRemove={removeFormaPagamento}
+          onReset={resetFormasPagamento}
+        />
 
         <VendedoresManager />
         
