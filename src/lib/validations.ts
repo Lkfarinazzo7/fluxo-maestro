@@ -22,6 +22,9 @@ export const CATEGORIAS_DESPESAS = [
   'Transporte',
   'Alimentação',
   'Impostos',
+  'Escritório',
+  'Insumos',
+  'Administrativo',
   'Outros',
 ] as const;
 
