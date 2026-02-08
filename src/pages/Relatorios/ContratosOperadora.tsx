@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PeriodFilter } from '@/components/Dashboard/PeriodFilter';
 import { useState, useMemo } from 'react';
-import { DateRange, PeriodType, getPeriodRange } from '@/lib/dateFilters';
-import { useDashboard } from '@/hooks/useDashboard';
+import { DateRange, PeriodType, getPeriodRange, isDateInRange } from '@/lib/dateFilters';
+import { useContratosCRUD } from '@/hooks/useContratosCRUD';
 import { formatCurrency } from '@/lib/formatters';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft } from 'lucide-react';
@@ -22,10 +22,54 @@ export default function ContratosOperadora() {
     return getPeriodRange(periodType, customStart, customEnd);
   }, [periodType, customStart, customEnd]);
 
-  const { contratosPorOperadora } = useDashboard(dateRange);
+  // Usar dados reais do useContratosCRUD
+  const { contratos, isLoading } = useContratosCRUD();
+
+  // Filtrar contratos no período
+  const contratosNoPeriodo = useMemo(() => {
+    return contratos.filter(c => isDateInRange(c.data_implantacao, dateRange));
+  }, [contratos, dateRange]);
+
+  // Agrupar por operadora
+  const contratosPorOperadora = useMemo(() => {
+    const grouped = contratosNoPeriodo.reduce((acc, contrato) => {
+      if (!acc[contrato.operadora]) {
+        acc[contrato.operadora] = {
+          operadora: contrato.operadora,
+          quantidade: 0,
+          totalMensalidade: 0,
+        };
+      }
+      acc[contrato.operadora].quantidade += 1;
+      acc[contrato.operadora].totalMensalidade += contrato.valor_mensalidade;
+      return acc;
+    }, {} as Record<string, { operadora: string; quantidade: number; totalMensalidade: number }>);
+
+    return Object.values(grouped).map(item => ({
+      operadora: item.operadora,
+      quantidade: item.quantidade,
+      ticketMedio: item.quantidade > 0 ? item.totalMensalidade / item.quantidade : 0,
+    }));
+  }, [contratosNoPeriodo]);
 
   const totalContratos = contratosPorOperadora.reduce((sum, op) => sum + op.quantidade, 0);
   const ticketMedioGeral = contratosPorOperadora.reduce((sum, op) => sum + op.ticketMedio, 0) / (contratosPorOperadora.length || 1);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate('/relatorios')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Contratos por Operadora</h1>
+            <p className="text-muted-foreground">Carregando dados...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -74,25 +118,31 @@ export default function ContratosOperadora() {
             <CardTitle>Distribuição de Contratos</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={contratosPorOperadora}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ operadora, percent }) => `${operadora}: ${(percent * 100).toFixed(1)}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="quantidade"
-                >
-                  {contratosPorOperadora.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {contratosPorOperadora.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={contratosPorOperadora}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ operadora, percent }) => `${operadora}: ${(percent * 100).toFixed(1)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="quantidade"
+                  >
+                    {contratosPorOperadora.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                Nenhum contrato no período
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -101,16 +151,22 @@ export default function ContratosOperadora() {
             <CardTitle>Ticket Médio por Operadora</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={contratosPorOperadora}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="operadora" />
-                <YAxis />
-                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                <Legend />
-                <Bar dataKey="ticketMedio" fill="hsl(var(--success))" name="Ticket Médio (R$)" />
-              </BarChart>
-            </ResponsiveContainer>
+            {contratosPorOperadora.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={contratosPorOperadora} layout="horizontal">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="operadora" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Legend />
+                  <Bar dataKey="ticketMedio" fill="hsl(var(--success))" name="Ticket Médio (R$)" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                Nenhum contrato no período
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

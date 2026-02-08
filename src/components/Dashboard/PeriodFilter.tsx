@@ -54,6 +54,7 @@ export function PeriodFilter({
           <SelectItem value="hoje">Hoje</SelectItem>
           <SelectItem value="semana">Semana Atual</SelectItem>
           <SelectItem value="mes">Mês Atual</SelectItem>
+          <SelectItem value="proximoMes">Próximo Mês</SelectItem>
           <SelectItem value="7dias">Últimos 7 Dias</SelectItem>
           <SelectItem value="30dias">Últimos 30 Dias</SelectItem>
           <SelectItem value="personalizado">Período Personalizado</SelectItem>

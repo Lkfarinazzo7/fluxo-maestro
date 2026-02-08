@@ -210,6 +210,15 @@ export function useContratosCRUD() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ContratoFormData> }) => {
+      // Buscar contrato atual para comparação
+      const { data: contratoAtual, error: fetchError } = await supabase
+        .from('contratos')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+
       const { data: contrato, error } = await supabase
         .from('contratos')
         .update(data)
@@ -218,10 +227,56 @@ export function useContratosCRUD() {
         .single();
       
       if (error) throw error;
+
+      // Verificar se o percentual de comissão do vendedor mudou
+      if (data.vendedor_responsavel && data.percentual_comissao_vendedor !== undefined &&
+          (data.percentual_comissao_vendedor !== contratoAtual.percentual_comissao_vendedor || 
+           data.vendedor_responsavel !== contratoAtual.vendedor_responsavel)) {
+        
+        // Calcular receita total como base comissionável
+        const receitaBancaria = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
+        const bonificacaoTotal = contrato.bonificacao_por_vida * contrato.quantidade_vidas;
+        const receitaTotal = receitaBancaria + bonificacaoTotal;
+        const novoValorComissaoVendedor = receitaTotal * (data.percentual_comissao_vendedor / 100);
+        
+        // Atualizar despesas existentes do vendedor para este contrato
+        await supabase
+          .from('despesas')
+          .update({
+            valor: novoValorComissaoVendedor,
+            nome: `Comissão ${data.vendedor_responsavel} - ${contrato.nome}`,
+            fornecedor: data.vendedor_responsavel,
+          })
+          .like('nome', `%Comissão%${contratoAtual.vendedor_responsavel}%${contrato.nome}%`);
+      }
+
+      // Verificar se o percentual de comissão do supervisor mudou
+      if (data.supervisor && data.percentual_comissao_supervisor !== undefined &&
+          (data.percentual_comissao_supervisor !== contratoAtual.percentual_comissao_supervisor ||
+           data.supervisor !== contratoAtual.supervisor)) {
+        
+        // Calcular receita total como base comissionável
+        const receitaBancaria = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
+        const bonificacaoTotal = contrato.bonificacao_por_vida * contrato.quantidade_vidas;
+        const receitaTotal = receitaBancaria + bonificacaoTotal;
+        const novoValorComissaoSupervisor = receitaTotal * (data.percentual_comissao_supervisor / 100);
+        
+        // Atualizar despesas existentes do supervisor para este contrato
+        await supabase
+          .from('despesas')
+          .update({
+            valor: novoValorComissaoSupervisor,
+            nome: `Comissão ${data.supervisor} - ${contrato.nome}`,
+            fornecedor: data.supervisor,
+          })
+          .like('nome', `%Comissão%${contratoAtual.supervisor}%${contrato.nome}%`);
+      }
+
       return contrato;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contratos'] });
+      queryClient.invalidateQueries({ queryKey: ['despesas'] });
       toast({
         title: 'Sucesso!',
         description: 'Contrato atualizado com sucesso.',

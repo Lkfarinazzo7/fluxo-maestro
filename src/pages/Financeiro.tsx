@@ -318,6 +318,7 @@ export default function Financeiro() {
               <SelectItem value="hoje">Hoje</SelectItem>
               <SelectItem value="semana">Esta Semana</SelectItem>
               <SelectItem value="mes">Este Mês</SelectItem>
+              <SelectItem value="proximoMes">Próximo Mês</SelectItem>
               <SelectItem value="7dias">Últimos 7 dias</SelectItem>
               <SelectItem value="30dias">Últimos 30 dias</SelectItem>
               <SelectItem value="personalizado">Personalizado</SelectItem>

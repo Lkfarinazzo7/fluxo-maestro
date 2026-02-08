@@ -1,6 +1,6 @@
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, isWithinInterval, parseISO } from 'date-fns';
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, addMonths, isWithinInterval, parseISO } from 'date-fns';
 
-export type PeriodType = 'hoje' | 'semana' | 'mes' | '7dias' | '30dias' | 'personalizado';
+export type PeriodType = 'hoje' | 'semana' | 'mes' | 'proximoMes' | '7dias' | '30dias' | 'personalizado';
 
 export interface DateRange {
   start: Date;
@@ -27,6 +27,13 @@ export function getPeriodRange(period: PeriodType, customStart?: Date, customEnd
       return {
         start: startOfMonth(now),
         end: endOfMonth(now)
+      };
+    
+    case 'proximoMes':
+      const nextMonth = addMonths(now, 1);
+      return {
+        start: startOfMonth(nextMonth),
+        end: endOfMonth(nextMonth)
       };
     
     case '7dias':
