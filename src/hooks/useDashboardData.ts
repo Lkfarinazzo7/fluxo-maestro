@@ -3,6 +3,8 @@ import { useReceitasCRUD } from '@/hooks/useReceitasCRUD';
 import { useDespesasCRUD } from '@/hooks/useDespesasCRUD';
 import { useContratosCRUD } from '@/hooks/useContratosCRUD';
 import { DateRange, isDateInRange } from '@/lib/dateFilters';
+import { differenceInDays, format, parseISO, startOfDay, startOfWeek, startOfMonth } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export interface DashboardMetrics {
   receitaPeriodo: number;
@@ -15,6 +17,18 @@ export interface DashboardMetrics {
   ticketMedioContratos: number;
   totalVidas: number;
   mediaVidasPorContrato: number;
+  proporcaoMediaContrato: number;
+}
+
+export interface PfVsPjData {
+  quantidadePF: number;
+  quantidadePJ: number;
+  valorTotalPF: number;
+  valorTotalPJ: number;
+  percentualQuantidadePF: number;
+  percentualQuantidadePJ: number;
+  percentualValorPF: number;
+  percentualValorPJ: number;
 }
 
 export interface ContratosPorOperadora {
@@ -75,6 +89,16 @@ export function useDashboardData(dateRange: DateRange) {
       ? totalVidas / contratosNoPeriodo.length 
       : 0;
 
+    // Proporção média do contrato = média(receita_total / valor_mensalidade)
+    const proporcaoMediaContrato = contratosNoPeriodo.length > 0
+      ? contratosNoPeriodo.reduce((sum, c) => {
+          const receitaBancaria = c.valor_mensalidade * (c.percentual_comissao / 100);
+          const bonificacaoTotal = c.bonificacao_por_vida * c.quantidade_vidas;
+          const receitaTotal = receitaBancaria + bonificacaoTotal;
+          return sum + (c.valor_mensalidade > 0 ? receitaTotal / c.valor_mensalidade : 0);
+        }, 0) / contratosNoPeriodo.length
+      : 0;
+
     return {
       receitaPeriodo,
       receitaPrevista,
@@ -86,8 +110,38 @@ export function useDashboardData(dateRange: DateRange) {
       ticketMedioContratos,
       totalVidas,
       mediaVidasPorContrato,
+      proporcaoMediaContrato,
     };
   }, [receitas, despesas, contratos, dateRange]);
+
+  // Dados PF vs PJ
+  const pfVsPjData = useMemo(() => {
+    const contratosNoPeriodo = contratos.filter(c => {
+      return isDateInRange(c.data_implantacao, dateRange);
+    });
+
+    const contratosPF = contratosNoPeriodo.filter(c => c.tipo_contrato === 'PF');
+    const contratosPJ = contratosNoPeriodo.filter(c => c.tipo_contrato === 'PJ');
+
+    const quantidadePF = contratosPF.length;
+    const quantidadePJ = contratosPJ.length;
+    const totalQuantidade = quantidadePF + quantidadePJ;
+
+    const valorTotalPF = contratosPF.reduce((sum, c) => sum + c.valor_mensalidade, 0);
+    const valorTotalPJ = contratosPJ.reduce((sum, c) => sum + c.valor_mensalidade, 0);
+    const totalValor = valorTotalPF + valorTotalPJ;
+
+    return {
+      quantidadePF,
+      quantidadePJ,
+      valorTotalPF,
+      valorTotalPJ,
+      percentualQuantidadePF: totalQuantidade > 0 ? (quantidadePF / totalQuantidade) * 100 : 0,
+      percentualQuantidadePJ: totalQuantidade > 0 ? (quantidadePJ / totalQuantidade) * 100 : 0,
+      percentualValorPF: totalValor > 0 ? (valorTotalPF / totalValor) * 100 : 0,
+      percentualValorPJ: totalValor > 0 ? (valorTotalPJ / totalValor) * 100 : 0,
+    };
+  }, [contratos, dateRange]);
 
   const contratosPorOperadora = useMemo(() => {
     const contratosNoPeriodo = contratos.filter(c => {
@@ -132,37 +186,64 @@ export function useDashboardData(dateRange: DateRange) {
       .slice(0, 8);
   }, [despesas]);
 
-  // Dados para gráfico de fluxo de caixa
+  // Dados para gráfico de fluxo de caixa com granularidade dinâmica
   const fluxoCaixaData = useMemo(() => {
-    // Group receitas and despesas by month for the period
-    const receitasPorMes: Record<string, number> = {};
-    const despesasPorMes: Record<string, number> = {};
+    const days = differenceInDays(dateRange.end, dateRange.start);
+    
+    // Determinar granularidade e formato
+    let groupFn: (date: Date) => string;
+    let formatFn: (key: string) => string;
+    
+    if (days <= 31) {
+      // Granularidade diária
+      groupFn = (date) => format(date, 'yyyy-MM-dd');
+      formatFn = (key) => format(parseISO(key), 'dd/MM', { locale: ptBR });
+    } else if (days <= 90) {
+      // Granularidade semanal
+      groupFn = (date) => format(startOfWeek(date, { weekStartsOn: 0 }), 'yyyy-MM-dd');
+      formatFn = (key) => `Sem ${format(parseISO(key), 'dd/MM', { locale: ptBR })}`;
+    } else {
+      // Granularidade mensal
+      groupFn = (date) => format(startOfMonth(date), 'yyyy-MM');
+      formatFn = (key) => {
+        const [year, month] = key.split('-');
+        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        return `${monthNames[parseInt(month) - 1]}/${year.slice(2)}`;
+      };
+    }
+
+    const receitasPorPeriodo: Record<string, number> = {};
+    const despesasPorPeriodo: Record<string, number> = {};
 
     receitas.filter(r => r.status === 'recebido' && r.data_recebida).forEach(r => {
       const data = new Date(r.data_recebida!);
-      const key = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
-      receitasPorMes[key] = (receitasPorMes[key] || 0) + (r.valor_recebido || 0);
+      const key = groupFn(data);
+      receitasPorPeriodo[key] = (receitasPorPeriodo[key] || 0) + (r.valor_recebido || 0);
     });
 
     despesas.filter(d => d.status === 'pago' && d.data_paga).forEach(d => {
       const data = new Date(d.data_paga!);
-      const key = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
-      despesasPorMes[key] = (despesasPorMes[key] || 0) + d.valor;
+      const key = groupFn(data);
+      despesasPorPeriodo[key] = (despesasPorPeriodo[key] || 0) + d.valor;
     });
 
-    const allKeys = new Set([...Object.keys(receitasPorMes), ...Object.keys(despesasPorMes)]);
+    const allKeys = new Set([...Object.keys(receitasPorPeriodo), ...Object.keys(despesasPorPeriodo)]);
     const sortedKeys = Array.from(allKeys).sort();
 
+    let saldoAcumulado = 0;
     return sortedKeys.map(key => {
-      const [year, month] = key.split('-');
-      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const entradas = receitasPorPeriodo[key] || 0;
+      const saidas = despesasPorPeriodo[key] || 0;
+      saldoAcumulado += entradas - saidas;
+      
       return {
-        periodo: `${monthNames[parseInt(month) - 1]}/${year.slice(2)}`,
-        entradas: receitasPorMes[key] || 0,
-        saidas: despesasPorMes[key] || 0,
+        periodo: formatFn(key),
+        entradas,
+        saidas,
+        saldoAcumulado,
       };
     });
-  }, [receitas, despesas]);
+  }, [receitas, despesas, dateRange]);
 
   return {
     metrics,
@@ -170,6 +251,7 @@ export function useDashboardData(dateRange: DateRange) {
     proximosRecebimentos,
     proximasDespesas,
     fluxoCaixaData,
+    pfVsPjData,
     isLoading: loadingReceitas || loadingDespesas || loadingContratos,
   };
 }

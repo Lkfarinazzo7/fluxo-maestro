@@ -10,7 +10,6 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useApp } from '@/contexts/AppContext';
 
 export default function ReceitasComparativo() {
   const navigate = useNavigate();
@@ -22,7 +21,7 @@ export default function ReceitasComparativo() {
     return getPeriodRange(periodType, customStart, customEnd);
   }, [periodType, customStart, customEnd]);
 
-  const { entradas } = useApp();
+  // Usar apenas dados reais do hook useEntries
   const { entradasRecebidas, entradasPrevistas } = useEntries(dateRange);
 
   const totalPrevisto = [...entradasRecebidas, ...entradasPrevistas].reduce((sum, e) => sum + e.valor_previsto, 0);

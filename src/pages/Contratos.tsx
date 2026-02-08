@@ -62,7 +62,8 @@ export default function Contratos() {
   const totalVidas = contratosAtivos.reduce((sum, c) => sum + c.quantidade_vidas, 0);
   const receitaMensalTotal = contratosAtivos.reduce((sum, c) => {
     const receitaBancaria = c.valor_mensalidade * (c.percentual_comissao / 100);
-    return sum + receitaBancaria;
+    const bonificacaoTotal = c.bonificacao_por_vida * c.quantidade_vidas;
+    return sum + receitaBancaria + bonificacaoTotal;
   }, 0);
 
   const handleDeleteContrato = () => {
@@ -208,14 +209,16 @@ export default function Contratos() {
                 <TableHead>Tipo</TableHead>
                 <TableHead>Vidas</TableHead>
                 <TableHead>Mensalidade</TableHead>
-                <TableHead>Receita da Bancária</TableHead>
+                <TableHead>Receita Total</TableHead>
                 <TableHead>Vendedor</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredContratos.map((contrato) => {
-                const receitaMensal = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
+                const receitaBancaria = contrato.valor_mensalidade * (contrato.percentual_comissao / 100);
+                const bonificacaoTotal = contrato.bonificacao_por_vida * contrato.quantidade_vidas;
+                const receitaTotal = receitaBancaria + bonificacaoTotal;
                 
                 return (
                   <TableRow key={contrato.id} className="hover:bg-accent">
@@ -242,7 +245,7 @@ export default function Contratos() {
                       {formatCurrency(contrato.valor_mensalidade)}
                     </TableCell>
                     <TableCell className="font-medium text-success">
-                      {formatCurrency(receitaMensal)}
+                      {formatCurrency(receitaTotal)}
                     </TableCell>
                     <TableCell>
                       {contrato.vendedor_responsavel || '-'}
