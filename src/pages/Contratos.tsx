@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useContratosCRUD } from '@/hooks/useContratosCRUD';
 import { ContratoFormDialog } from '@/components/Forms/ContratoFormDialog';
+import { PeriodFilter } from '@/components/Dashboard/PeriodFilter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -14,13 +15,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -32,33 +26,32 @@ import {
 } from '@/components/ui/alert-dialog';
 import { FileText, Search, Users, Pencil, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
+import { PeriodType, getPeriodRange, isDateInRange } from '@/lib/dateFilters';
 
 export default function Contratos() {
   const { contratos, isLoading, deleteContrato } = useContratosCRUD();
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState<'all' | 'created' | 'implanted'>('all');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [period, setPeriod] = useState<PeriodType>('mes');
+  const [customStart, setCustomStart] = useState<Date>();
+  const [customEnd, setCustomEnd] = useState<Date>();
   const [editingContrato, setEditingContrato] = useState<any>(null);
   const [deletingContrato, setDeletingContrato] = useState<string | null>(null);
 
-  const filteredContratos = contratos.filter(contrato => {
-    const matchesSearch = contrato.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contrato.operadora.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (!matchesSearch) return false;
-    
-    if (dateFilter === 'all' || !startDate || !endDate) return true;
-    
-    const filterDate = dateFilter === 'created' ? contrato.created_at : contrato.data_implantacao;
-    const contratoDate = new Date(filterDate);
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    return contratoDate >= start && contratoDate <= end;
-  });
+  const dateRange = useMemo(() => getPeriodRange(period, customStart, customEnd), [period, customStart, customEnd]);
 
-  const contratosAtivos = contratos;
+  const filteredContratos = useMemo(() => {
+    return contratos.filter(contrato => {
+      const matchesSearch = contrato.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contrato.operadora.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (!matchesSearch) return false;
+      
+      // Filter by period using data_implantacao as anchor date
+      return isDateInRange(contrato.data_implantacao, dateRange);
+    });
+  }, [contratos, searchTerm, dateRange]);
+
+  const contratosAtivos = filteredContratos;
   const totalVidas = contratosAtivos.reduce((sum, c) => sum + c.quantidade_vidas, 0);
   const receitaMensalTotal = contratosAtivos.reduce((sum, c) => {
     const receitaBancaria = c.valor_mensalidade * (c.percentual_comissao / 100);
@@ -149,53 +142,31 @@ export default function Contratos() {
         </Card>
       </div>
 
-      {/* Busca e filtros */}
+      {/* Filtro de período */}
+      <Card>
+        <CardContent className="pt-6">
+          <PeriodFilter
+            value={period}
+            customStart={customStart}
+            customEnd={customEnd}
+            onValueChange={setPeriod}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Busca */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por nome ou operadora..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Filtrar por" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="created">Data de Cadastro</SelectItem>
-                  <SelectItem value="implanted">Data de Implantação</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {dateFilter !== 'all' && (
-                <>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    placeholder="Data inicial"
-                    className="w-[160px]"
-                  />
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    placeholder="Data final"
-                    className="w-[160px]"
-                  />
-                </>
-              )}
-            </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome ou operadora..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </CardHeader>
         <CardContent>
